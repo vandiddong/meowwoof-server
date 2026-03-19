@@ -8,13 +8,12 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 // 전 세계 랭킹 데이터 (서버가 켜져있는 동안 유지됨)
 let globalRanks = [
-    { name: "Lim_Genius", level: 52 },
-    { name: "King_Woof", level: 48 },
-    { name: "Shadow_Cat", level: 41 },
-    { name: "Sangyeon_01", level: 35 },
-    { name: "Noob_Killer", level: 29 }
+    { name: "Empty", level: 0 },
+    { name: "Empty", level: 0 },
+    { name: "Empty", level: 0 },
+    { name: "Empty", level: 0 },
+    { name: "Empty", level: 0 }
 ];
-
 io.on('connection', (socket) => {
     console.log('플레이어 접속:', socket.id);
 

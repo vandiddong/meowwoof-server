@@ -6,36 +6,48 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-// --- 전역 데이터 저장소 ---
-let players = {}; // 실시간 접속 유저 위치 정보
-let globalRanks = [
-    { name: "상연_King", level: 10 },
-    { name: "Empty", level: 0 },
-    { name: "Empty", level: 0 },
-    { name: "Empty", level: 0 },
-    { name: "Empty", level: 0 }
-];
+const MAP_SIZE = 8000;
+
+// --- 서버가 결정하는 공유 환경 (Map Data) ---
+let mapData = {
+    stones: [],
+    crates: [],
+    bushes: []
+};
+
+// 서버 켜질 때 딱 한 번 맵 생성
+function initMap() {
+    for (let i = 0; i < 8; i++) mapData.stones.push({ x: Math.random() * (MAP_SIZE - 600) + 300, y: Math.random() * (MAP_SIZE - 600) + 300 });
+    for (let i = 0; i < 20; i++) mapData.crates.push({ id: i, x: Math.random() * (MAP_SIZE - 400) + 200, y: Math.random() * (MAP_SIZE - 400) + 200, hp: 250 });
+    for (let i = 0; i < 40; i++) mapData.bushes.push({ x: Math.random() * (MAP_SIZE - 400) + 200, y: Math.random() * (MAP_SIZE - 400) + 200 });
+}
+initMap();
+
+let players = {};
+let globalRanks = [{ name: "King_Sangyeon", level: 1 }];
 
 io.on('connection', (socket) => {
-    console.log('새 유저 접속:', socket.id);
+    console.log('유저 접속:', socket.id);
 
-    // 1. 유저가 게임 시작 버튼을 눌렀을 때
+    // 1. 접속하자마자 서버가 정한 맵 데이터를 유저에게 전송
+    socket.emit('init_world', mapData);
+
     socket.on('start_game', (data) => {
         players[socket.id] = {
             id: socket.id,
-            x: data.x,
-            y: data.y,
             name: data.name,
             type: data.type,
+            x: Math.random() * 7000 + 500,
+            y: Math.random() * 7000 + 500,
             level: data.level,
+            hp: 100,
             aimAng: 0,
             isDashing: false
         };
-        // 현재 랭킹 전송
         socket.emit('update_ranks', globalRanks);
     });
 
-    // 2. 유저가 움직일 때마다 위치 정보 수신
+    // 2. 위치 업데이트 및 타격 판정 로직
     socket.on('player_move', (data) => {
         if (players[socket.id]) {
             players[socket.id].x = data.x;
@@ -46,27 +58,43 @@ io.on('connection', (socket) => {
         }
     });
 
-    // 3. 죽었을 때 랭킹 업데이트
+    // 3. [핵심] 공격 신호 받으면 서버가 거리 계산해서 데미지 입힘
+    socket.on('attack', () => {
+        const attacker = players[socket.id];
+        if (!attacker) return;
+
+        // 다른 유저들 중 사거리 안에 있는 사람 찾기
+        Object.values(players).forEach(target => {
+            if (target.id === socket.id) return; // 나 자신은 제외
+
+            const dist = Math.hypot(attacker.x - target.x, attacker.y - target.y);
+            const range = attacker.type === 'knight' ? 300 : 800; // 사거리
+
+            if (dist < range) {
+                target.hp -= (attacker.type === 'knight' ? 15 : 10); // 데미지
+                if (target.hp <= 0) {
+                    target.hp = 0;
+                    // 죽은 유저에게 알림
+                    io.to(target.id).emit('you_died', { killer: attacker.name });
+                }
+            }
+        });
+    });
+
     socket.on('submit_score', (data) => {
         globalRanks.push({ name: data.name, level: data.level });
         globalRanks.sort((a, b) => b.level - a.level);
         globalRanks = globalRanks.slice(0, 5);
-        io.emit('update_ranks', globalRanks); // 모든 유저에게 랭킹 방송
+        io.emit('update_ranks', globalRanks);
     });
 
-    // 4. 나갔을 때 정보 삭제
-    socket.on('disconnect', () => {
-        console.log('유저 나감:', socket.id);
-        delete players[socket.id];
-    });
+    socket.on('disconnect', () => { delete players[socket.id]; });
 });
 
-// 5. 핵심: 1초에 30번 모든 플레이어에게 "서로의 위치"를 방송 (Tick Rate)
+// 1초에 30번 동기화
 setInterval(() => {
-    io.emit('world_state', players);
-}, 1000 / 30); 
+    io.emit('world_state', { players });
+}, 1000 / 30);
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`서버 가동 중! 포트: ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

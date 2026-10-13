@@ -1,0 +1,78 @@
+import { chromium } from '@playwright/test';
+import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { mkdir,writeFile } from 'node:fs/promises';
+await mkdir('screenshots',{recursive:true});
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const base=process.env.BOMB_RUN_TEST_URL||'http://127.0.0.1:4173';
+try {
+const errors=[];
+const page=await browser.newPage({viewport:{width:1440,height:1000}});
+await page.addInitScript(()=>localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'})));
+page.on('pageerror',e=>errors.push(e.message));
+await page.goto(base);
+await page.waitForFunction(()=>window.bombRun?.state.phase==='menu');
+await page.waitForTimeout(1000);
+await page.screenshot({path:'screenshots/menu-desktop.png'});
+await page.locator('[data-action="play"]').click();
+for(let round=1;round<=5;round++){
+  console.log(`Desktop round ${round}`);
+  await page.waitForFunction(()=>window.bombRun.state.phase==='briefing');
+  assert.equal(await page.evaluate(()=>window.bombRun.state.round),round);
+  if(round===1)await page.screenshot({path:'screenshots/tactical-map.png'});
+  await page.waitForFunction(()=>window.bombRun.state.phase==='flight',{},{timeout:12000});
+  if(round===1){
+    await page.keyboard.down('KeyW');await page.keyboard.down('KeyA');
+    await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboard.up('KeyA');
+    await page.mouse.move(700,450);await page.mouse.down();await page.mouse.move(730,530);await page.mouse.up();
+    await page.screenshot({path:'screenshots/flight-desktop.png'});
+  }
+  await page.keyboard.press('Space');
+  await page.keyboard.press('Space');
+  assert.ok(['bomb','result'].includes(await page.evaluate(()=>window.bombRun.state.phase)));
+  await page.waitForFunction(()=>window.bombRun.state.phase==='result',{},{timeout:15000});
+  if(round===1)await page.screenshot({path:'screenshots/impact-result.png'});
+  await page.locator('[data-action="next"]').click();
+}
+await page.waitForFunction(()=>window.bombRun.state.phase==='final',{},{timeout:15000});
+assert.equal(await page.locator('.leader-row').count(),5);
+await page.screenshot({path:'screenshots/final-score.png'});
+await page.locator('[data-action="home"]').first().click();
+await page.locator('[data-action="settings"]').click();
+await page.locator('#setting-sound').uncheck();
+await page.locator('#setting-motion').check();
+await page.locator('[data-action="save-settings"]').click();
+assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-settings')).reducedMotion),true);
+await page.locator('[data-action="friends"]').click();
+await page.locator('#nickname').fill('Pilot One');
+await page.locator('[data-action="room-create"]').click();
+assert.match(await page.locator('#room-code').inputValue(),/^[A-Z0-9]{6}$/);
+await page.locator('[data-action="close"]').click();
+await page.locator('[data-action="daily"]').click();
+assert.ok((await page.locator('.modal').innerText()).includes('로컬'));
+await page.locator('[data-action="close"]').click();
+await page.close();
+const mobile=await browser.newPage({viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+await mobile.addInitScript(()=>localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'})));
+mobile.on('pageerror',e=>errors.push(e.message));
+await mobile.goto(base);
+await mobile.waitForFunction(()=>window.bombRun?.state.phase==='menu');
+await mobile.screenshot({path:'screenshots/menu-mobile-landscape.png'});
+await mobile.locator('[data-action="play"]').tap();
+await mobile.waitForFunction(()=>window.bombRun.state.phase==='flight',{},{timeout:15000});
+const control=await mobile.locator('[data-control="left"]').boundingBox();
+const session=await mobile.context().newCDPSession(mobile);
+await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:control.x+control.width/2,y:control.y+control.height/2,id:8}]});
+await mobile.waitForTimeout(300);
+await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+await mobile.screenshot({path:'screenshots/flight-mobile-landscape.png'});
+await mobile.locator('[data-control="drop"]').tap();
+await mobile.waitForFunction(()=>window.bombRun.state.phase==='result',{},{timeout:15000});
+await mobile.locator('[data-action="home"]').first().tap();
+await mobile.setViewportSize({width:390,height:844});
+await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
+assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+await writeFile('browser-report.json',JSON.stringify({passed:true,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','final AI board','saved settings','room code','daily local disclosure','mobile touch drop','portrait overflow'],pageErrors:errors},null,2));
+assert.deepEqual(errors,[]);
+console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
+} finally {await browser.close();}

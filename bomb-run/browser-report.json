@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "desktop full five-round game",
+    "keyboard flight",
+    "camera drag",
+    "single bomb",
+    "final AI board",
+    "saved settings",
+    "room code",
+    "daily local disclosure",
+    "mobile touch drop",
+    "portrait overflow"
+  ],
+  "pageErrors": []
+}

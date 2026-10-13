@@ -1,0 +1,65 @@
+{
+  "seeds": 1000,
+  "failures": 0,
+  "successRate": 1,
+  "fallbacks": 0,
+  "rejectedAttempts": 2217,
+  "rejectionRate": 0.6891513832763444,
+  "elapsedSeconds": 3.595,
+  "rounds": [
+    {
+      "round": 1,
+      "count": 200,
+      "min": 25.06,
+      "max": 34.98,
+      "mean": 29.27,
+      "damagePercent": 0
+    },
+    {
+      "round": 2,
+      "count": 200,
+      "min": 35.04,
+      "max": 44.93,
+      "mean": 39.22,
+      "damagePercent": 4
+    },
+    {
+      "round": 3,
+      "count": 200,
+      "min": 45.05,
+      "max": 54.98,
+      "mean": 48.58,
+      "damagePercent": 13.26
+    },
+    {
+      "round": 4,
+      "count": 200,
+      "min": 55.01,
+      "max": 64.95,
+      "mean": 59.27,
+      "damagePercent": 18.34
+    },
+    {
+      "round": 5,
+      "count": 200,
+      "min": 65.01,
+      "max": 74.84,
+      "mean": 68.57,
+      "damagePercent": 25.52
+    }
+  ],
+  "archetypes": {
+    "S자 강": 63,
+    "두 강의 합류": 47,
+    "중앙 산맥": 157,
+    "평행 계곡": 80,
+    "호수 마을": 85,
+    "쌍둥이 마을": 141,
+    "대칭 산맥": 66,
+    "나선 도로": 68,
+    "다중 다리": 51,
+    "숲 평원": 59,
+    "중앙 고원": 151,
+    "해안과 만": 32
+  }
+}

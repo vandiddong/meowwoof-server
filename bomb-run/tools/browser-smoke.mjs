@@ -72,7 +72,7 @@ await mobile.locator('[data-action="home"]').first().tap();
 await mobile.setViewportSize({width:390,height:844});
 await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
 assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await writeFile('browser-report.json',JSON.stringify({passed:true,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','final AI board','saved settings','room code','daily local disclosure','mobile touch drop','portrait overflow'],pageErrors:errors},null,2));
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','final AI board','saved settings','room code','daily local disclosure','mobile touch drop','portrait overflow'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

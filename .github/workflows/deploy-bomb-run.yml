@@ -17,7 +17,8 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     permissions:
       contents: write
       pages: write
@@ -111,3 +112,12 @@ jobs:
           done
           echo '::error::Public site did not become ready within six minutes.'
           exit 1
+      - name: Save browser verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bomb-run-browser-verification
+          path: |
+            bomb-run/browser-report.json
+            bomb-run/screenshots/
+          retention-days: 14

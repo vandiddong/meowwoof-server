@@ -1,1 +1,5 @@
 node_modules/
+/bomb-run/
+deployment-checks/dist/
+deployment-checks/screenshots/
+deployment-checks/browser-report.json

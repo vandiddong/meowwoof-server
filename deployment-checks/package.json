@@ -1,0 +1,12 @@
+{
+  "name": "bomb-run-deployment-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:browser": "node browser-smoke.mjs",
+    "audit:build": "node audit-build.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}

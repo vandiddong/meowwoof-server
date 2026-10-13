@@ -1,10 +1,10 @@
-name: Build and publish BOMB RUN
+name: Verify published BOMB RUN
 
 on:
   push:
     branches: [main]
     paths:
-      - 'bomb-run/**'
+      - 'deployment-checks/**'
       - '.github/workflows/deploy-bomb-run.yml'
   workflow_dispatch:
 
@@ -12,112 +12,65 @@ permissions:
   contents: read
 
 concurrency:
-  group: bomb-run-pages
+  group: bomb-run-verification
   cancel-in-progress: false
 
 jobs:
-  publish:
+  verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      contents: write
-      pages: write
+    timeout-minutes: 15
     steps:
-      - name: Check out game source
+      - name: Check out verification tools
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Check out compiled site
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: gh-pages
+          path: _published-site
       - name: Set up Node.js
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: bomb-run/package-lock.json
-      - name: Install locked dependencies
-        working-directory: bomb-run
+          cache-dependency-path: deployment-checks/package-lock.json
+      - name: Install locked verification tools
+        working-directory: deployment-checks
         run: npm ci
-      - name: Test game rules
-        working-directory: bomb-run
-        run: npm test
-      - name: Validate 1000 generated worlds
-        working-directory: bomb-run
-        run: npm run report -- 1000
-      - name: Build for the repository URL
-        working-directory: bomb-run
-        run: npm run build:pages
-      - name: Install the browser for functional checks
-        working-directory: bomb-run
+      - name: Audit compiled source exposure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p deployment-checks/dist
+          git -C _published-site archive HEAD | tar -x -C deployment-checks/dist
+          cd deployment-checks
+          npm run audit:build
+      - name: Install browser
+        working-directory: deployment-checks
         run: npx playwright install --with-deps chromium
-      - name: Play five rounds and verify mobile controls
-        working-directory: bomb-run
-        env:
-          BOMB_RUN_TEST_URL: http://127.0.0.1:4174/meowwoof-server/
+      - name: Confirm expected release is live
         shell: bash
         run: |
           set -euo pipefail
-          node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --base=/meowwoof-server/ --port 4174 > "$RUNNER_TEMP/bomb-run-preview.log" 2>&1 &
-          preview_pid=$!
-          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
-          for attempt in {1..20}; do
-            if curl --fail --silent "$BOMB_RUN_TEST_URL" > /dev/null; then break; fi
-            sleep 1
-          done
-          npm run test:browser
-      - name: Record the source version
-        shell: bash
-        run: |
-          python3 - <<'PYCODE'
-          import json, os
-          from pathlib import Path
-          Path('bomb-run/dist/build.json').write_text(json.dumps({'sourceCommit': os.environ['GITHUB_SHA']}))
-          PYCODE
-      - name: Check out the published site
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          ref: gh-pages
-          path: _published-site
-      - name: Update the static site
-        shell: bash
-        run: |
-          set -euo pipefail
-          git -C _published-site rm -r --ignore-unmatch .
-          cp -R bomb-run/dist/. _published-site/
-          touch _published-site/.nojekyll
-          git -C _published-site config user.name 'github-actions[bot]'
-          git -C _published-site config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C _published-site add --all
-          if ! git -C _published-site diff --cached --quiet; then
-            git -C _published-site commit -m 'Publish verified BOMB RUN build'
-            git -C _published-site push origin HEAD:gh-pages
-          fi
-      - name: Request and verify GitHub Pages publication
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! gh api "repos/${GITHUB_REPOSITORY}/pages" --jq '.html_url' > "$RUNNER_TEMP/bomb-run-page-url"; then
-            echo '::notice::The build is uploaded. Enable Pages in repository Settings: Deploy from a branch, gh-pages, / (root).'
-            echo 'Static build uploaded; Pages must be enabled once in repository settings.' >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds" --silent
-          game_url="$(cat "$RUNNER_TEMP/bomb-run-page-url")"
+          expected="$(node -p "require('./deployment-checks/release.json').sourceCommit")"
           for attempt in {1..36}; do
-            if curl --fail --silent --show-error "${game_url%/}/build.json" -o "$RUNNER_TEMP/bomb-run-public-build.json" && grep -q "$GITHUB_SHA" "$RUNNER_TEMP/bomb-run-public-build.json"; then
-              (cd bomb-run && BOMB_RUN_TEST_URL="$game_url" npm run test:browser)
-              echo "Published game: $game_url" >> "$GITHUB_STEP_SUMMARY"
-              echo "Published game: $game_url"
+            if curl --fail --silent --show-error "https://vandiddong.github.io/meowwoof-server/build.json?release=${expected}&attempt=${attempt}" -o "$RUNNER_TEMP/bomb-run-public-build.json" && grep -q "$expected" "$RUNNER_TEMP/bomb-run-public-build.json"; then
               exit 0
             fi
             sleep 10
           done
-          echo '::error::Public site did not become ready within six minutes.'
+          echo '::error::The expected compiled release is not live.'
           exit 1
-      - name: Save browser verification evidence
+      - name: Verify public five-round game, audio and mobile controls
+        working-directory: deployment-checks
+        env:
+          BOMB_RUN_TEST_URL: https://vandiddong.github.io/meowwoof-server/
+        run: npm run test:browser
+      - name: Save public verification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: bomb-run-browser-verification
+          name: bomb-run-public-verification
           path: |
-            bomb-run/browser-report.json
-            bomb-run/screenshots/
+            deployment-checks/browser-report.json
+            deployment-checks/screenshots/
           retention-days: 14

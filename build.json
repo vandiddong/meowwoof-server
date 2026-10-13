@@ -1,1 +1,1 @@
-{"sourceCommit": "2aa77d54bd2ccf6b7cd95cbf946e9caa830c4d99"}
+{"version": "1.1.0", "sourceCommit": "2e7053127ac76b93f7268df2b0c43abaf56882a3", "localTests": 31, "seedAudit": {"seeds": 1000, "failures": 0}, "sourcePublication": "private workspace only; public commits contain compiled release and QA tools"}

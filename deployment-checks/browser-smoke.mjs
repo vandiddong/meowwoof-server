@@ -9,7 +9,7 @@ try {
 const errors=[];
 const page=await browser.newPage({viewport:{width:1440,height:1000}});
 await page.addInitScript(()=>localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'})));
-await page.addInitScript(()=>{
+const installAudioProbe=()=>{
   const NativeAudioContext=window.AudioContext;
   window.__audioTest={contexts:[],oscillatorStarts:0};
   window.AudioContext=class extends NativeAudioContext {
@@ -17,8 +17,9 @@ await page.addInitScript(()=>{
     createGain(){const node=super.createGain(),connect=node.connect.bind(node);node.connect=(destination,...args)=>{if(destination===this.destination)connect(this.__analyser);return connect(destination,...args);};return node;}
     createOscillator(){const node=super.createOscillator(),start=node.start.bind(node);node.start=(...args)=>{window.__audioTest.oscillatorStarts++;return start(...args);};return node;}
   };
-});
-const audioState=()=>page.evaluate(()=>{
+};
+await page.addInitScript(installAudioProbe);
+const audioState=(target=page)=>target.evaluate(()=>{
   const context=window.__audioTest.contexts.at(-1),samples=new Float32Array(2048);
   context?.__analyser.getFloatTimeDomainData(samples);
   return{state:context?.state,rms:Math.sqrt(samples.reduce((sum,n)=>sum+n*n,0)/samples.length),starts:window.__audioTest.oscillatorStarts};
@@ -31,6 +32,7 @@ assert.equal(await page.evaluate(()=>Object.hasOwn(window,'bombRun')),false);
 await page.waitForTimeout(1000);
 await page.screenshot({path:'screenshots/menu-desktop.png'});
 await page.locator('[data-action="play"]').click();
+let finalLatencyMs=0;
 for(let round=1;round<=5;round++){
   console.log(`Desktop round ${round}`);
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='briefing');
@@ -45,6 +47,14 @@ for(let round=1;round<=5;round++){
     await page.screenshot({path:'screenshots/flight-desktop.png'});
     const sound=await audioState();assert.equal(sound.state,'running');assert.ok(sound.rms>.0001,'Engine must produce a real audio signal');assert.ok(sound.starts>=3);
   }
+  if(round===1){
+    assert.equal(await page.locator('#wind-label').count(),0);
+    await page.evaluate(()=>window.__audioTest.contexts.at(-1).suspend());
+    await page.keyboard.press('KeyR');await page.waitForTimeout(200);assert.equal((await audioState()).state,'running');
+    await page.keyboard.down('KeyS');await page.waitForTimeout(800);await page.keyboard.up('KeyS');
+    const retained=await page.locator('#speed-label').innerText();await page.waitForTimeout(700);
+    assert.equal(await page.locator('#speed-label').innerText(),retained,'Reduced speed must persist after release');
+  }
   const beforeDrop=round===1?(await audioState()).starts:0;
   await page.keyboard.press('Space');
   await page.keyboard.press('Space');
@@ -52,7 +62,10 @@ for(let round=1;round<=5;round++){
   assert.ok(['bomb','result'].includes(await page.evaluate(()=>document.getElementById('app').dataset.phase)));
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='result',{},{timeout:15000});
   if(round===1){assert.ok((await audioState()).starts>=beforeDrop+5,'Cute impact sound must be played');await page.screenshot({path:'screenshots/impact-result.png'});}
-  await page.locator('[data-action="next"]').click();
+  if(round===5){
+    finalLatencyMs=await page.evaluate(async()=>{const start=performance.now();document.querySelector('[data-action="next"]').click();await new Promise(requestAnimationFrame);return performance.now()-start;});
+    assert.ok(finalLatencyMs<500,`Final leaderboard must paint immediately, got ${finalLatencyMs}ms`);
+  }else await page.locator('[data-action="next"]').click();
 }
 await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='final',{},{timeout:15000});
 assert.equal(await page.locator('.leader-row').count(),5);
@@ -64,17 +77,14 @@ await page.locator('#setting-motion').check();
 await page.locator('[data-action="save-settings"]').click();
 assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-settings')).reducedMotion),true);
 await page.waitForTimeout(300);assert.ok((await audioState()).rms<.0001,'Sound OFF must mute the master output');
-await page.locator('[data-action="friends"]').click();
-await page.locator('#nickname').fill('Pilot One');
-await page.locator('[data-action="room-create"]').click();
-assert.match(await page.locator('#room-code').inputValue(),/^[A-Z0-9]{6}$/);
-await page.locator('[data-action="close"]').click();
+assert.equal(await page.locator('[data-action="friends"]').count(),0);
 await page.locator('[data-action="daily"]').click();
 assert.ok((await page.locator('.modal').innerText()).includes('로컬'));
 await page.locator('[data-action="close"]').click();
 await page.close();
 const mobile=await browser.newPage({viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 await mobile.addInitScript(()=>localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'})));
+await mobile.addInitScript(installAudioProbe);
 mobile.on('pageerror',e=>errors.push(e.message));
 await mobile.goto(base);
 await mobile.waitForFunction(()=>document.getElementById('app')?.dataset.phase==='menu');
@@ -82,10 +92,16 @@ await mobile.screenshot({path:'screenshots/menu-mobile-landscape.png'});
 await mobile.locator('[data-action="play"]').tap();
 await mobile.waitForFunction(()=>document.getElementById('app').dataset.phase==='flight',{},{timeout:15000});
 const control=await mobile.locator('[data-control="left"]').boundingBox();
+const slow=await mobile.locator('[data-control="slower"]').boundingBox();
 const session=await mobile.context().newCDPSession(mobile);
-await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:control.x+control.width/2,y:control.y+control.height/2,id:8}]});
-await mobile.waitForTimeout(300);
+await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:control.x+control.width/2,y:control.y+control.height/2,id:8},{x:slow.x+slow.width/2,y:slow.y+slow.height/2,id:9}]});
+await mobile.waitForTimeout(700);
 await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+const mobileSound=await audioState(mobile);assert.equal(mobileSound.state,'running');assert.ok(mobileSound.rms>.0001);
+const retainedMobile=await mobile.locator('#speed-label').innerText();await mobile.waitForTimeout(700);
+assert.equal(await mobile.locator('#speed-label').innerText(),retainedMobile);
+await mobile.setViewportSize({width:390,height:844});assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+await mobile.setViewportSize({width:844,height:390});
 await mobile.screenshot({path:'screenshots/flight-mobile-landscape.png'});
 await mobile.locator('[data-control="drop"]').tap();
 await mobile.waitForFunction(()=>document.getElementById('app').dataset.phase==='result',{},{timeout:15000});
@@ -93,7 +109,7 @@ await mobile.locator('[data-action="home"]').first().tap();
 await mobile.setViewportSize({width:390,height:844});
 await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
 assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','final AI board','saved settings','room code','daily local disclosure','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','no public debug snapshot'],pageErrors:errors},null,2));
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,realDevicesTested:false,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

@@ -1,8 +1,8 @@
 {
-  "version": "1.3.1",
-  "sourceCommit": "28c79878c066d061069423ac78e5b14855861f64",
-  "localTests": 57,
-  "serverTests": 20,
+  "version": "1.4.0",
+  "sourceCommit": "f555cfb3280408d2d92ad51af8afe48e46a42987",
+  "localTests": 60,
+  "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
     "seeds": 1000,
@@ -17,5 +17,7 @@
   "onlineCompetition": "implemented and locally verified; hosting not configured",
   "googleLogin": "implemented with signature tests; production client ID not configured",
   "realDevicesTested": false,
-  "bombPlaybackRate": 4
+  "bombPlaybackRate": 4,
+  "competitionVersion": "fresh-maps-v3",
+  "targetHalfExtent": 360
 }

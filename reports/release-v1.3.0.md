@@ -24,7 +24,8 @@ Optional Google login validates signed identity tokens, issuer, audience and exp
 - 300 officially assigned maps across 60 accounts: zero generation/acceptance failures. Aggregate report is adjacent to this document.
 - Local real-browser five-round and API-connected five-round games passed.
 - Compiled-source exposure audit passed; no source maps or raw development source is included in this release.
-- Local final-score display: approximately 8 ms; post-drop results approximately 1.5–1.6 seconds. These are observed test measurements, not device-wide guarantees.
+- Local final-score display: approximately 116 ms; post-drop results approximately 1.1–1.3 seconds. These are observed test measurements, not device-wide guarantees.
+- Result panels paint before the first 3D reveal render; the final scoreboard uses a static backdrop to avoid unnecessary GPU work.
 - Public HTTPS verification is run by the linked repository Actions workflow after publication.
 
 ## Before commercial launch

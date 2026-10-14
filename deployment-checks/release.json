@@ -1,13 +1,14 @@
 {
-  "version": "1.2.0",
-  "sourceCommit": "4bab875e479ee43fb1c39d56a8e370b012c1e49b",
-  "localTests": 43,
-  "serverTests": 9,
+  "version": "1.2.1",
+  "sourceCommit": "0f97fb38d385e68099705e6cea9f8abb0c33533a",
+  "localTests": 45,
+  "serverTests": 10,
   "seedAudit": {
     "seeds": 1000,
     "failures": 0
   },
   "sourcePublication": "private workspace, verified archive and Git bundle; compiled release and QA tools only in public commits",
   "onlineCompetition": "implemented and locally verified; hosting not configured",
-  "realDevicesTested": false
+  "realDevicesTested": false,
+  "bombPlaybackRate": 3
 }

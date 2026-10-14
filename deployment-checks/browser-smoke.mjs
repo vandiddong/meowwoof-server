@@ -6,7 +6,7 @@ await mkdir('screenshots',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const base=process.env.BOMB_RUN_TEST_URL||'http://127.0.0.1:4173';
 try {
-const errors=[];
+const errors=[];const bombDurationsMs=[];
 const page=await browser.newPage({viewport:{width:1440,height:1000}});
 await page.addInitScript(()=>localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'})));
 const installAudioProbe=()=>{
@@ -55,12 +55,19 @@ for(let round=1;round<=5;round++){
     const retained=await page.locator('#speed-label').innerText();await page.waitForTimeout(700);
     assert.equal(await page.locator('#speed-label').innerText(),retained,'Reduced speed must persist after release');
   }
+  await page.evaluate(()=>{
+    window.__dropStart=performance.now();window.__bombDurationMs=null;
+    const observer=new MutationObserver(()=>{if(document.getElementById('app').dataset.phase==='result'){window.__bombDurationMs=performance.now()-window.__dropStart;observer.disconnect();}});
+    observer.observe(document.getElementById('app'),{attributes:true,attributeFilter:['data-phase']});
+  });
   const beforeDrop=round===1?(await audioState()).starts:0;
   await page.keyboard.press('Space');
   await page.keyboard.press('Space');
   if(round===1){await page.waitForTimeout(120);assert.ok((await audioState()).starts>=beforeDrop+2,'Belly release sound must be played');await page.screenshot({path:'screenshots/bomb-belly-release.png'});}
   assert.ok(['bomb','result'].includes(await page.evaluate(()=>document.getElementById('app').dataset.phase)));
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='result',{},{timeout:15000});
+  const bombMs=await page.evaluate(()=>window.__bombDurationMs);bombDurationsMs.push(bombMs);
+  assert.ok(bombMs>0&&bombMs<2200,`Post-drop result must arrive within 2.2s, got ${bombMs}ms`);
   if(round===1){assert.ok((await audioState()).starts>=beforeDrop+5,'Cute impact sound must be played');await page.screenshot({path:'screenshots/impact-result.png'});}
   if(round===5){
     finalLatencyMs=await page.evaluate(async()=>{const start=performance.now();document.querySelector('[data-action="next"]').click();await new Promise(requestAnimationFrame);return performance.now()-start;});
@@ -109,7 +116,7 @@ await mobile.locator('[data-action="home"]').first().tap();
 await mobile.setViewportSize({width:390,height:844});
 await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
 assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,realDevicesTested:false,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot'],pageErrors:errors},null,2));
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

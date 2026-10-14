@@ -126,7 +126,37 @@ await mobile.locator('[data-action="home"]').first().tap();
 await mobile.setViewportSize({width:390,height:844});
 await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
 assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information'],pageErrors:errors},null,2));
+await mobile.close();
+const mapMarkerChecks=[];
+for(const sample of [
+  {name:'desktop',viewport:{width:1440,height:1000}},
+  {name:'mobile-landscape',viewport:{width:844,height:390}},
+  {name:'small-landscape',viewport:{width:667,height:375}},
+  {name:'mobile-portrait',viewport:{width:390,height:844},motion:true},
+  {name:'os-reduced',viewport:{width:390,height:844},os:true},
+]){
+  const targetPage=await browser.newPage({viewport:sample.viewport,reducedMotion:sample.os?'reduce':'no-preference'});
+  targetPage.on('pageerror',e=>errors.push(e.message));
+  await targetPage.addInitScript(settings=>localStorage.setItem('bomb-run-settings',JSON.stringify(settings)),{quality:'low',reducedMotion:!!sample.motion});
+  await targetPage.goto(base);await targetPage.locator('[data-action="play"]').click();await targetPage.locator('.target-beacon').waitFor();
+  const marker=await targetPage.evaluate(()=>{
+    const beacon=document.querySelector('.target-beacon'),canvas=document.getElementById('tactical-map'),paper=document.querySelector('.map-paper').getBoundingClientRect();
+    const x=Math.round(parseFloat(beacon.style.left)/100*canvas.width),y=Math.round(parseFloat(beacon.style.top)/100*canvas.height);
+    return {animations:beacon.getAnimations().length,pixel:Array.from(canvas.getContext('2d').getImageData(x,y,1,1).data),paperTop:paper.top,paperBottom:paper.bottom,overflow:document.documentElement.scrollWidth>innerWidth};
+  });
+  assert.ok(marker.pixel[0]>200&&marker.pixel[1]<80&&marker.pixel[2]<90,'Pulse must align with the red canvas target');
+  assert.equal(marker.animations,sample.motion||sample.os?0:1);
+  assert.equal(marker.overflow,false);
+  assert.ok(marker.paperTop>=0&&marker.paperBottom<=sample.viewport.height+1,`${sample.name} map must fit the screen: ${JSON.stringify(marker)}`);
+  assert.ok((await targetPage.locator('.briefing-tip').innerText()).includes('빨간 깃발 위치를 기억하세요'));
+  if(sample.name!=='os-reduced')await targetPage.screenshot({path:`screenshots/briefing-target-${sample.name}.png`});
+  if(sample.name==='desktop'){
+    await targetPage.waitForFunction(()=>document.getElementById('app').dataset.phase==='flight');
+    assert.equal(await targetPage.locator('.target-beacon').count(),0);assert.equal(await targetPage.locator('#tactical-map').count(),0);
+  }
+  mapMarkerChecks.push({case:sample.name,passed:true,pulse:marker.animations===1});await targetPage.close();
+}
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

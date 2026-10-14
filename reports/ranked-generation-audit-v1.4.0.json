@@ -1,0 +1,43 @@
+{
+  "users": 60,
+  "maps": 300,
+  "failures": 0,
+  "elapsedSeconds": 6.189,
+  "rounds": [
+    {
+      "round": 1,
+      "count": 60,
+      "min": 28.14,
+      "max": 31.95,
+      "mean": 30.15
+    },
+    {
+      "round": 2,
+      "count": 60,
+      "min": 38.03,
+      "max": 41.95,
+      "mean": 39.96
+    },
+    {
+      "round": 3,
+      "count": 60,
+      "min": 48.02,
+      "max": 51.76,
+      "mean": 49.72
+    },
+    {
+      "round": 4,
+      "count": 60,
+      "min": 58.04,
+      "max": 62,
+      "mean": 60.01
+    },
+    {
+      "round": 5,
+      "count": 60,
+      "min": 68.05,
+      "max": 71.94,
+      "mean": 69.77
+    }
+  ]
+}

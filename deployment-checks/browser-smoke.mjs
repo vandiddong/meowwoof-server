@@ -56,8 +56,8 @@ for(let round=1;round<=5;round++){
     assert.equal(await page.locator('#speed-label').innerText(),retained,'Reduced speed must persist after release');
   }
   await page.evaluate(()=>{
-    window.__dropStart=performance.now();window.__bombDurationMs=null;
-    const observer=new MutationObserver(()=>{if(document.getElementById('app').dataset.phase==='result'){window.__bombDurationMs=performance.now()-window.__dropStart;observer.disconnect();}});
+    window.__dropStart=null;window.__bombDurationMs=null;
+    const observer=new MutationObserver(()=>{const phase=document.getElementById('app').dataset.phase;if(phase==='bomb'&&window.__dropStart===null)window.__dropStart=performance.now();if(phase==='result'&&window.__dropStart!==null){window.__bombDurationMs=performance.now()-window.__dropStart;observer.disconnect();}});
     observer.observe(document.getElementById('app'),{attributes:true,attributeFilter:['data-phase']});
   });
   const beforeDrop=round===1?(await audioState()).starts:0;

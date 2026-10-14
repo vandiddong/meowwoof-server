@@ -1,6 +1,6 @@
 {
-  "version": "1.3.0",
-  "sourceCommit": "b4c7407145da043644f8b5e50c6519285020d30e",
+  "version": "1.3.1",
+  "sourceCommit": "28c79878c066d061069423ac78e5b14855861f64",
   "localTests": 57,
   "serverTests": 20,
   "googleSignatureTests": 2,

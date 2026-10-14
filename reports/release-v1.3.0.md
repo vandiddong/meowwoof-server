@@ -35,3 +35,7 @@ Provision an HTTPS API with durable private database and seed key, configure OAu
 Monetization planning prioritizes cosmetic purchases and eventual ad removal, without paid official attempts, hints or competitive advantages. Payments, ads and purchasing are not activated. Internal terms/privacy drafts are unfinished and are not published as finalized policies.
 
 Actual Android/iPhone audio, silent switch, Bluetooth and sustained performance remain untested. Mobile browser emulation passed. Previously published source history cannot be recalled, and client obfuscation cannot prevent inspection or automation.
+
+## Final public verification
+
+[Public HTTPS verification passed](https://github.com/vandiddong/meowwoof-server/actions/runs/38552567118): five rounds, actual Web Audio, image download/share cancellation and mobile controls. Observed post-drop results: 1.07–1.73 seconds; final scoreboard: 186 ms. All live asset bytes matched the locally audited release over verified HTTPS. Initial timing failures were corrected by painting score panels before 3D reveal and retaining a static final backdrop; the original latency assertions were retained. These timings are measurements from this runner, not physical-device guarantees.

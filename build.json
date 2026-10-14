@@ -1,6 +1,6 @@
 {
   "version": "1.2.1",
-  "sourceCommit": "0f97fb38d385e68099705e6cea9f8abb0c33533a",
+  "sourceCommit": "9793a5a18b968f87640b3e97445d4083ca104c31",
   "localTests": 45,
   "serverTests": 10,
   "seedAudit": {
@@ -10,5 +10,5 @@
   "sourcePublication": "private workspace, verified archive and Git bundle; compiled release and QA tools only in public commits",
   "onlineCompetition": "implemented and locally verified; hosting not configured",
   "realDevicesTested": false,
-  "bombPlaybackRate": 3
+  "bombPlaybackRate": 4
 }

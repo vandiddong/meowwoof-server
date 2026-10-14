@@ -1,14 +1,21 @@
 {
-  "version": "1.2.1",
-  "sourceCommit": "9793a5a18b968f87640b3e97445d4083ca104c31",
-  "localTests": 45,
-  "serverTests": 10,
+  "version": "1.3.0",
+  "sourceCommit": "6897a09d79c00917bbf1ee39e160549d0ad22ef2",
+  "localTests": 57,
+  "serverTests": 20,
+  "googleSignatureTests": 2,
   "seedAudit": {
     "seeds": 1000,
     "failures": 0
   },
+  "rankedMapAudit": {
+    "maps": 300,
+    "accounts": 60,
+    "failures": 0
+  },
   "sourcePublication": "private workspace, verified archive and Git bundle; compiled release and QA tools only in public commits",
   "onlineCompetition": "implemented and locally verified; hosting not configured",
+  "googleLogin": "implemented with signature tests; production client ID not configured",
   "realDevicesTested": false,
   "bombPlaybackRate": 4
 }

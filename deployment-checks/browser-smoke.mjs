@@ -1,7 +1,7 @@
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdir,writeFile } from 'node:fs/promises';
+import { mkdir,writeFile,readFile } from 'node:fs/promises';
 await mkdir('screenshots',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const base=process.env.BOMB_RUN_TEST_URL||'http://127.0.0.1:4173';
@@ -29,6 +29,7 @@ page.on('pageerror',e=>errors.push(e.message));
 await page.goto(base);
 await page.waitForFunction(()=>document.getElementById('app')?.dataset.phase==='menu');
 assert.equal(await page.evaluate(()=>Object.hasOwn(window,'bombRun')),false);
+assert.ok((await page.title()).includes('붐케르크'));
 await page.waitForTimeout(1000);
 await page.screenshot({path:'screenshots/menu-desktop.png'});
 await page.locator('[data-action="play"]').click();
@@ -42,7 +43,8 @@ for(let round=1;round<=5;round++){
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='flight',{},{timeout:12000});
   if(round===1){
     await page.keyboard.down('KeyW');await page.keyboard.down('KeyA');
-    await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboard.up('KeyA');
+    assert.ok((await page.title()).includes('붐케르크'));
+await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboard.up('KeyA');
     await page.mouse.move(700,450);await page.mouse.down();await page.mouse.move(730,530);await page.mouse.up();
     await page.screenshot({path:'screenshots/flight-desktop.png'});
     const sound=await audioState();assert.equal(sound.state,'running');assert.ok(sound.rms>.0001,'Engine must produce a real audio signal');assert.ok(sound.starts>=3);
@@ -77,6 +79,12 @@ for(let round=1;round<=5;round++){
 await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='final',{},{timeout:15000});
 assert.equal(await page.locator('.leader-row').count(),5);
 await page.screenshot({path:'screenshots/final-score.png'});
+const downloadEvent=page.waitForEvent('download');await page.locator('[data-action="download-card"]').click();
+const card=await downloadEvent;await card.saveAs('screenshots/result-share-card.png');
+const png=await readFile('screenshots/result-share-card.png');assert.equal(png.subarray(1,4).toString(),'PNG');assert.equal(png.readUInt32BE(16),1080);assert.equal(png.readUInt32BE(20),1920);
+await page.evaluate(()=>{Object.defineProperty(navigator,'canShare',{value:()=>true,configurable:true});Object.defineProperty(navigator,'share',{value:async()=>{throw new DOMException('Cancelled','AbortError');},configurable:true});});
+let unexpectedDownloads=0;const onDownload=()=>unexpectedDownloads++;page.on('download',onDownload);
+await page.locator('[data-action="share-card"]').click();await page.waitForTimeout(100);page.off('download',onDownload);assert.equal(unexpectedDownloads,0,'Cancelling sharing must not force a download');
 await page.locator('[data-action="home"]').first().click();
 await page.locator('[data-action="settings"]').click();
 await page.locator('#setting-sound').uncheck();
@@ -86,8 +94,10 @@ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-s
 await page.waitForTimeout(300);assert.ok((await audioState()).rms<.0001,'Sound OFF must mute the master output');
 assert.equal(await page.locator('[data-action="friends"]').count(),0);
 await page.locator('[data-action="daily"]').click();
-assert.ok((await page.locator('.modal').innerText()).includes('로컬'));
+assert.ok((await page.locator('.modal').innerText()).includes('이 기기에만'));
 await page.locator('[data-action="close"]').click();
+await page.locator('[data-action="rules"]').click();assert.ok((await page.locator('.modal').innerText()).includes('하루 3회'));assert.ok((await page.locator('.modal').innerText()).includes('30분'));await page.locator('[data-action="close"]').click();
+await page.locator('[data-action="privacy"]').click();assert.ok((await page.locator('.modal').innerText()).includes('브라우저'));await page.locator('[data-action="close"]').click();
 await page.close();
 const mobile=await browser.newPage({viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 await mobile.addInitScript(()=>localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'})));
@@ -116,7 +126,7 @@ await mobile.locator('[data-action="home"]').first().tap();
 await mobile.setViewportSize({width:390,height:844});
 await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
 assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot'],pageErrors:errors},null,2));
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

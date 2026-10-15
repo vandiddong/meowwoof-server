@@ -11,3 +11,5 @@ Validation: 61 automated tests; type checking/build/source-exposure audit; 1,000
 Public beta remains free/static. Official rankings, Google login, ads, payments and analytics are not connected. Commercial hosting/API, ad approval/policies and retention/real-device checks remain prerequisites. [Short advertising-readiness review](ad-readiness-review-2026-10-15.md) is a separate proposal; its future suggestions were not implemented. No domain or paid AWS resource was changed.
 
 Current source remains local-only with private archive and Git bundle. Public deployment contains obfuscated compiled assets without source maps. Obfuscation does not prevent inspection or guarantee anti-cheating.
+
+[Public HTTPS verification passed](https://github.com/vandiddong/meowwoof-server/actions/runs/38725925446): full five-round game, audio, sharing, mobile controls, five marker/layout/motion checks and three five-page guide checks. Observed post-drop results 0.98–1.74 seconds; final scoreboard 246 ms. All six actual HTTPS files byte-matched the audited release. Real phones remain untested.

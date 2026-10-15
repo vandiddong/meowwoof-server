@@ -16,6 +16,6 @@ Operator: **charlielimJR**. Contact: [vandiddong@gmail.com](mailto:vandiddong@gm
 
 1.4.0 widens target placement from ±135 to ±360 (60% of map width). Safe, separated starts stay equally distant from the target. Flight duration and bomb pacing remain unchanged. [Free beta publication guide](reports/public-beta-guide.md).
 
-1.5.0 clarifies the memorization map with a bright red, pale-outlined target, a slow pulsing ring and plain instructions. In-flight markers stay hidden. App/OS reduced motion shows a static ring. Small mobile landscape maps fit the screen. The free beta continues on GitHub Pages; official accounts/ranking and commercial features require appropriate hosting.
+1.4.1 clarified the memorization map with a bright red, pale-outlined target, a slow pulsing ring and plain instructions. In-flight markers stay hidden. App/OS reduced motion shows a static ring. Small mobile landscape maps fit the screen. The free beta continues on GitHub Pages; official accounts/ranking and commercial features require appropriate hosting.
 
 1.5.0 gives ten seconds to memorize the map and twenty seconds to fly, a more generous score curve, vivid matching red/yellow/blue roofs, recognizable apple/note/cup occluders and a five-page field guide before the first local flight. New personal/official record namespaces keep previous scores separate and preserved. [Advertising readiness assessment (Korean)](reports/ad-readiness-review-2026-10-15.md). No advertising SDK was activated.

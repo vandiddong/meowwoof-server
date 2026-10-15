@@ -1,0 +1,96 @@
+{
+  "seeds": 1000,
+  "failures": 0,
+  "successRate": 1,
+  "fallbacks": 0,
+  "rejectedAttempts": 2253,
+  "rejectionRate": 0.6925914540424224,
+  "elapsedSeconds": 3.758,
+  "targetPlacement": {
+    "halfExtent": 360,
+    "outsideOldCenter": 847,
+    "outsideMiddleFour": 290,
+    "fullMap4x4Grid": [
+      [
+        8,
+        38,
+        26,
+        5
+      ],
+      [
+        38,
+        186,
+        174,
+        31
+      ],
+      [
+        30,
+        165,
+        185,
+        30
+      ],
+      [
+        6,
+        34,
+        26,
+        18
+      ]
+    ]
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "count": 200,
+      "min": 25.06,
+      "max": 34.83,
+      "mean": 29.58,
+      "damagePercent": 0
+    },
+    {
+      "round": 2,
+      "count": 200,
+      "min": 35.05,
+      "max": 44.93,
+      "mean": 39.71,
+      "damagePercent": 3.86
+    },
+    {
+      "round": 3,
+      "count": 200,
+      "min": 45.07,
+      "max": 54.77,
+      "mean": 48.93,
+      "damagePercent": 13.05
+    },
+    {
+      "round": 4,
+      "count": 200,
+      "min": 55.02,
+      "max": 64.99,
+      "mean": 59.12,
+      "damagePercent": 17.86
+    },
+    {
+      "round": 5,
+      "count": 200,
+      "min": 65.04,
+      "max": 74.74,
+      "mean": 68.96,
+      "damagePercent": 24.93
+    }
+  ],
+  "archetypes": {
+    "S자 강": 59,
+    "두 강의 합류": 62,
+    "중앙 산맥": 133,
+    "평행 계곡": 105,
+    "호수 마을": 65,
+    "쌍둥이 마을": 187,
+    "대칭 산맥": 76,
+    "나선 도로": 53,
+    "다중 다리": 43,
+    "숲 평원": 52,
+    "중앙 고원": 120,
+    "해안과 만": 45
+  }
+}

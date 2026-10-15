@@ -1,7 +1,7 @@
 {
-  "version": "1.4.1",
-  "sourceCommit": "5275d94dc42d24c508dc42163297b4a3507cbf83",
-  "localTests": 60,
+  "version": "1.5.0",
+  "sourceCommit": "27dd74e1e10b88559bd670b873ffb0abdadafe9b",
+  "localTests": 61,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -18,8 +18,27 @@
   "googleLogin": "implemented with signature tests; production client ID not configured",
   "realDevicesTested": false,
   "bombPlaybackRate": 4,
-  "competitionVersion": "fresh-maps-v3",
+  "competitionVersion": "fresh-maps-v4",
   "targetHalfExtent": 360,
   "briefingTarget": "bright red outlined target, slow pulse, reduced-motion static",
-  "hosting": "GitHub Pages free beta; production API not connected"
+  "hosting": "GitHub Pages free beta; production API not connected",
+  "mapSeconds": 10,
+  "flightSeconds": 20,
+  "guidePages": 5,
+  "scoring": {
+    "formula": "round(100/(1+(distance/180)^1.5))",
+    "50m": 87,
+    "100m": 71,
+    "200m": 46
+  },
+  "mapOccluders": [
+    "green apple",
+    "folded note",
+    "coffee cup"
+  ],
+  "roofColors": [
+    "#e12d36",
+    "#ffd02a",
+    "#2268e8"
+  ]
 }

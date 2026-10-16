@@ -1,7 +1,7 @@
 {
-  "version": "1.8.1",
-  "sourceCommit": "6c5209fcf932637c88a99fc221da0d8a26869ace",
-  "localTests": 81,
+  "version": "1.9.0",
+  "sourceCommit": "cdf56058d666e93aba24b4f7a8b890a0d3711455",
+  "localTests": 94,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -74,5 +74,23 @@
     "390x844",
     "320x568",
     "667x375"
-  ]
+  ],
+  "statsTests": 13,
+  "playStats": {
+    "default": "disabled",
+    "scope": "one browser, opt-in, rolling30KST calendar days",
+    "transmission": "none; manual download only",
+    "includedModes": [
+      "play",
+      "daily"
+    ],
+    "excludedModes": [
+      "training",
+      "practice",
+      "online"
+    ],
+    "data": "date and count/frame aggregates only; no identity/map/input/score",
+    "revocation": "remove only stats; discard buffers; honor other-tab withdrawal",
+    "nextDay": "number of consecutive-day play dates, not population D1 retention"
+  }
 }

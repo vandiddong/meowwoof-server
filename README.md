@@ -6,6 +6,8 @@ A memory and bombing-accuracy game set in a fictional world inspired by World Wa
 
 Current public release: **1.9.0**. Free play and personal records are available. Production official rankings and Google login are **not connected**; advertising and payments are **not active**.
 
+New in1.9.0: optional **플레이 점검** shows this browser’s recent30-day completion/retry/next-day-play and frame aggregates after explicit consent. It defaults off, has no automatic upload, supports manual file download and statistics-only deletion, and excludes practice/training/official games. This is a manual beta-test aid, not whole-population analytics.
+
 The privately retained competition implementation allows three free five-round attempts per account per Korean calendar day, assigns fresh maps within round-specific difficulty bands, and publishes a 30-minute leaderboard snapshot. It verifies input logs and computes scores on the server. Production API hosting, Google OAuth configuration, privacy retention/deletion details and physical-device validation remain prerequisites. [Release verification and prerequisites](reports/release-v1.9.0.md).
 
 The original `server.js` remains independent. The game on `gh-pages` contains compiled, obfuscated JavaScript without source maps. Current development source is retained privately in the cloud workspace; earlier source versions remain in public Git history. Browser code can still be inspected or modified. Obfuscation is not encryption or a guarantee against cheating.

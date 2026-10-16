@@ -1,7 +1,7 @@
 {
-  "version": "1.7.0",
-  "sourceCommit": "a7c9b304c4aeba4f4f57615ab85cef71104f4f53",
-  "localTests": 72,
+  "version": "1.8.0",
+  "sourceCommit": "8d8490323939d1808a62640ebddc1baf19f89389",
+  "localTests": 81,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -65,5 +65,7 @@
   "feedbackTests": 10,
   "resultFeedback": "post-impact top-down target/impact/release diagram, release-pose-relative signed errors and conditional advice; separate no-drop guidance",
   "gameplayRulesVersion": "1.6.0",
-  "physicsVersion": "1.2.1"
+  "physicsVersion": "1.2.1",
+  "trainingTests": 7,
+  "training": "optional first-local-run steering/braking/one-drop lesson; explicit ready action, fixed separate course, real impact prediction, touch/keyboard, skip/retry/reopen, excluded records, normal rendering conceals hints"
 }

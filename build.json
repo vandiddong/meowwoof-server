@@ -1,7 +1,7 @@
 {
-  "version": "1.9.0",
-  "sourceCommit": "cdf56058d666e93aba24b4f7a8b890a0d3711455",
-  "localTests": 94,
+  "version": "1.10.0",
+  "sourceCommit": "2aa4645f2193808822fe71dc76223c2ced7603de",
+  "localTests": 106,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -92,5 +92,28 @@
     "data": "date and count/frame aggregates only; no identity/map/input/score",
     "revocation": "remove only stats; discard buffers; honor other-tab withdrawal",
     "nextDay": "number of consecutive-day play dates, not population D1 retention"
+  },
+  "historyTests": 12,
+  "flightHistory": {
+    "scope": "local personal record, last20 completed games since update",
+    "modes": [
+      "play",
+      "daily"
+    ],
+    "excludedModes": [
+      "practice",
+      "training",
+      "online"
+    ],
+    "fields": [
+      "KST day",
+      "mode",
+      "five scores",
+      "total"
+    ],
+    "transmission": "none; excluded from diagnostics exports",
+    "goal": "next50-point milestone after latest score; capped at500; fallback to legacy best only when history empty",
+    "deletion": "recent history only; preserve best/daily/settings/diagnostics",
+    "rulesVersion": "1.6.0"
   }
 }

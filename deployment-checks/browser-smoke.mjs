@@ -6,7 +6,7 @@ await mkdir('screenshots',{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 const base=process.env.BOMB_RUN_TEST_URL||'http://127.0.0.1:4173';
 try {
-const errors=[];const bombDurationsMs=[];
+const errors=[];const bombDurationsMs=[];const resultFeedbackChecks=[];
 const page=await browser.newPage({viewport:{width:1440,height:1000}});
 await page.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));localStorage.setItem('bomb-run-guide-v1','true');});
 const installAudioProbe=()=>{
@@ -41,6 +41,7 @@ for(let round=1;round<=5;round++){
   if(round===1)await page.screenshot({path:'screenshots/tactical-map.png'});
   if(round===5)await page.screenshot({path:'screenshots/map-damage-round5.png'});
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='flight',{},{timeout:20000});
+  assert.equal(await page.locator('.result-feedback').count(),0,'Feedback must stay hidden until impact');
   if(round===1){
     await page.keyboard.down('KeyW');await page.keyboard.down('KeyA');
     assert.ok((await page.title()).includes('붐케르크'));
@@ -69,6 +70,15 @@ await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboa
   assert.ok(['bomb','result'].includes(await page.evaluate(()=>document.getElementById('app').dataset.phase)));
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='result',{},{timeout:20000});
   const bombMs=await page.evaluate(()=>window.__bombDurationMs);bombDurationsMs.push(bombMs);
+  assert.equal(await page.locator('#toast.visible').count(),0,'Drop toast must clear before the result is read');
+  assert.equal(await page.locator('.impact-diagram').count(),1);assert.equal(await page.locator('.feedback-axes>div').count(),2);
+  const analysis=await page.evaluate(()=>{
+    const axis=[...document.querySelectorAll('.feedback-axes strong')].map(el=>parseFloat(el.textContent));
+    const error=parseFloat(document.querySelector('.result-summary p strong').textContent);
+    return{axis,error,tip:document.querySelector('.feedback-tip').textContent};
+  });
+  assert.ok(Math.abs(Math.hypot(...analysis.axis)-analysis.error)<.2,'Pilot-relative errors must reconstruct the scored impact distance');assert.ok(analysis.tip.length>10);
+  resultFeedbackChecks.push({case:`desktop-round-${round}`,passed:true});
   assert.ok(bombMs>0&&bombMs<2200,`Post-drop result must arrive within 2.2s, got ${bombMs}ms`);
   if(round===1){assert.ok((await audioState()).starts>=beforeDrop+5,'Cute impact sound must be played');await page.screenshot({path:'screenshots/impact-result.png'});}
   if(round===5){
@@ -122,6 +132,19 @@ await mobile.setViewportSize({width:844,height:390});
 await mobile.screenshot({path:'screenshots/flight-mobile-landscape.png'});
 await mobile.locator('[data-control="drop"]').tap();
 await mobile.waitForFunction(()=>document.getElementById('app').dataset.phase==='result',{},{timeout:20000});
+for(const sample of [{name:'small-portrait',width:320,height:568},{name:'portrait',width:390,height:844},{name:'small-landscape',width:667,height:375},{name:'landscape',width:844,height:390}]){
+  await mobile.setViewportSize({width:sample.width,height:sample.height});await mobile.locator('.result-panel').evaluate(el=>el.scrollTop=0);
+  assert.equal(await mobile.locator('.impact-diagram').count(),1);assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  const box=await mobile.locator('.result-panel').boundingBox(),next=await mobile.locator('[data-action="next"]').boundingBox();
+  assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=sample.width+1&&box.y+box.height<=sample.height+1,`Result panel must fit ${sample.name}: ${JSON.stringify(box)}`);
+  assert.ok(next.y>=0&&next.y+next.height<=sample.height+1,`Next round must be immediately reachable on ${sample.name}: ${JSON.stringify(next)}`);
+  await mobile.screenshot({path:`screenshots/impact-feedback-${sample.name}.png`});
+  await mobile.locator('.result-panel').evaluate(el=>el.scrollTop=el.scrollHeight);
+  const tip=await mobile.locator('.feedback-tip').boundingBox(),action=await mobile.locator('[data-action=next]').boundingBox();
+  assert.ok(tip.y>=0&&tip.y+tip.height<=sample.height+1,'Full advice must be readable after scrolling');
+  const overlap=tip.x<action.x+action.width&&tip.x+tip.width>action.x&&tip.y<action.y+action.height&&tip.y+tip.height>action.y;assert.equal(overlap,false,'Next button must not cover the advice');
+  resultFeedbackChecks.push({case:sample.name,passed:true});
+}
 await mobile.locator('[data-action="home"]').first().tap();
 await mobile.setViewportSize({width:390,height:844});
 await mobile.screenshot({path:'screenshots/menu-mobile-portrait.png'});
@@ -186,7 +209,16 @@ for(const sample of [{name:'desktop',viewport:{width:1440,height:1000}},{name:'p
   await guidePage.locator('[data-action="play"]').click();await guidePage.locator('#tactical-map').waitFor();assert.equal(await guidePage.locator('.guide-book').count(),0);
   guideChecks.push({case:sample.name,passed:true,pages:5});await guidePage.close();
 }
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,guideChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight','five-page guide before first flight','guide previous/next/reopen/escape','guide outside round clock','legacy personal record preserved'],pageErrors:errors},null,2));
+const timeoutPage=await browser.newPage({viewport:{width:390,height:844}});
+timeoutPage.on('pageerror',e=>errors.push(e.message));
+await timeoutPage.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low',reducedMotion:true}));localStorage.setItem('bomb-run-guide-v1','true');});
+await timeoutPage.goto(base);await timeoutPage.locator('[data-action="play"]').click();
+await timeoutPage.waitForFunction(()=>document.getElementById('app')?.dataset.phase==='result',{},{timeout:40000});
+assert.equal(await timeoutPage.locator('[data-feedback="no-drop"]').count(),1);assert.equal(await timeoutPage.locator('.impact-landing').count(),0);assert.equal(await timeoutPage.locator('.feedback-axes').count(),0);
+assert.ok((await timeoutPage.locator('.feedback-tip').innerText()).includes('Space 또는 DROP'));assert.equal(await timeoutPage.locator('#score-count').innerText(),'0');
+await timeoutPage.screenshot({path:'screenshots/impact-feedback-no-drop.png'});await timeoutPage.locator('[data-action="next"]').click();await timeoutPage.locator('#tactical-map').waitFor();
+resultFeedbackChecks.push({case:'no-drop and next round',passed:true});await timeoutPage.close();
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,guideChecks,resultFeedbackChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight','five-page guide before first flight','guide previous/next/reopen/escape','guide outside round clock','legacy personal record preserved','release-relative impact diagram and errors','responsive result and immediate next round','honest no-drop feedback'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

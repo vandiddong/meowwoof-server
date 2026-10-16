@@ -1,17 +1,19 @@
 {
-  "version": "1.6.0",
-  "sourceCommit": "0c46c21ebe9ed2c5f2af8f9ad2cfd29391c4c919",
-  "localTests": 62,
+  "version": "1.7.0",
+  "sourceCommit": "a7c9b304c4aeba4f4f57615ab85cef71104f4f53",
+  "localTests": 72,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
     "seeds": 1000,
-    "failures": 0
+    "failures": 0,
+    "verifiedInVersion": "1.6.0"
   },
   "rankedMapAudit": {
     "maps": 300,
     "accounts": 60,
-    "failures": 0
+    "failures": 0,
+    "verifiedInVersion": "1.6.0"
   },
   "sourcePublication": "private workspace, verified archive and Git bundle; compiled release and QA tools only in public commits",
   "onlineCompetition": "implemented and locally verified; hosting not configured",
@@ -57,6 +59,11 @@
     "withinMeters": 60,
     "limitSeconds": 20,
     "slowestApproachSeconds": 12.508,
-    "method": "fixed-tick heading controller, all five starts, retained speed; not a human playtest"
-  }
+    "method": "fixed-tick heading controller, all five starts, retained speed; not a human playtest",
+    "verifiedInVersion": "1.6.0"
+  },
+  "feedbackTests": 10,
+  "resultFeedback": "post-impact top-down target/impact/release diagram, release-pose-relative signed errors and conditional advice; separate no-drop guidance",
+  "gameplayRulesVersion": "1.6.0",
+  "physicsVersion": "1.2.1"
 }

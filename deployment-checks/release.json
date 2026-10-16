@@ -1,6 +1,6 @@
 {
-  "version": "1.8.0",
-  "sourceCommit": "8d8490323939d1808a62640ebddc1baf19f89389",
+  "version": "1.8.1",
+  "sourceCommit": "6c5209fcf932637c88a99fc221da0d8a26869ace",
   "localTests": 81,
   "serverTests": 21,
   "googleSignatureTests": 2,
@@ -67,5 +67,12 @@
   "gameplayRulesVersion": "1.6.0",
   "physicsVersion": "1.2.1",
   "trainingTests": 7,
-  "training": "optional first-local-run steering/braking/one-drop lesson; explicit ready action, fixed separate course, real impact prediction, touch/keyboard, skip/retry/reopen, excluded records, normal rendering conceals hints"
+  "training": "optional first-local-run steering/braking/one-drop lesson; explicit ready action, fixed separate course, real impact prediction, touch/keyboard, skip/retry/reopen, excluded records, normal rendering conceals hints",
+  "resultRendering": "HTML first; one static overview after250ms; final board hides WebGL",
+  "trainingBrowserLayouts": [
+    "1440x1000",
+    "390x844",
+    "320x568",
+    "667x375"
+  ]
 }

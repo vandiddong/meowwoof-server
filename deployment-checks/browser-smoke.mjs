@@ -87,7 +87,7 @@ await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboa
   }else await page.locator('[data-action="next"]').click();
 }
 await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='final',{},{timeout:20000});
-assert.equal(await page.locator('.leader-row').count(),5);
+assert.equal(await page.locator('.leader-row').count(),5);assert.equal(await page.locator('#world').isVisible(),false,'Final HTML board must not wait on a WebGL layer');
 await page.screenshot({path:'screenshots/final-score.png'});
 const downloadEvent=page.waitForEvent('download');await page.locator('[data-action="download-card"]').click();
 const card=await downloadEvent;await card.saveAs('screenshots/result-share-card.png');
@@ -219,7 +219,7 @@ assert.ok((await timeoutPage.locator('.feedback-tip').innerText()).includes('Spa
 await timeoutPage.screenshot({path:'screenshots/impact-feedback-no-drop.png'});await timeoutPage.locator('[data-action="next"]').click();await timeoutPage.locator('#tactical-map').waitFor();
 resultFeedbackChecks.push({case:'no-drop and next round',passed:true});await timeoutPage.close();
 const trainingChecks=[];
-for(const sample of [{name:'desktop',viewport:{width:1440,height:1000},first:true},{name:'portrait',viewport:{width:390,height:844},touch:true},{name:'landscape',viewport:{width:667,height:375},touch:true}]){
+for(const sample of [{name:'desktop',viewport:{width:1440,height:1000},first:true},{name:'portrait',viewport:{width:390,height:844},touch:true},{name:'small-portrait',viewport:{width:320,height:568},touch:true},{name:'landscape',viewport:{width:667,height:375},touch:true}]){
   const learner=await browser.newPage({viewport:sample.viewport,isMobile:!!sample.touch,hasTouch:!!sample.touch});learner.on('pageerror',e=>errors.push(e.message));
   await learner.addInitScript(first=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low',trajectory:false}));localStorage.setItem('bomb-run-best-v2','249');if(!first)localStorage.setItem('bomb-run-guide-v1','true');},!!sample.first);
   await learner.goto(base);await learner.locator('[data-action=play]').click();

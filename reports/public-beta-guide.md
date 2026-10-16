@@ -1,6 +1,6 @@
 # 붐케르크 무료 웹 베타 공개 안내
 
-현재 공개 링크: https://vandiddong.github.io/meowwoof-server/?v=1.8.0
+현재 공개 링크: https://vandiddong.github.io/meowwoof-server/?v=1.8.1
 
 현재 사용할 수 있는 기능은 자유 비행, 브라우저 개인 기록, 5라운드 결과 이미지 저장·공유입니다. 순위표의 AI는 모의 경쟁입니다. 공식 일일 순위·Google 로그인·광고·결제는 아직 공개 연결되지 않았습니다.
 

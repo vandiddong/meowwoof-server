@@ -1,0 +1,17 @@
+# Boomkerque1.10.0: personal flight history and a reason to retry
+
+Play: https://vandiddong.github.io/meowwoof-server/?v=1.10.0
+
+After guided training and optional diagnostics, this release adds a small personal progress loop: the result compares the most recent completed local game and proposes the next50-point milestone, capped at500. A perfect game proposes repeating500, never an impossible501. Lower/equal scores are described honestly; different maps mean the score difference alone cannot establish skill improvement. No rewards, ads, pressure timers or gameplay assistance were added.
+
+The menu and completed result open **나의 비행 기록** with the latest five score bars and twenty completed games, including five per-round scores. Only free/local-daily games completed through the final screen are saved after this update. Training/practice/official/incomplete games are excluded. Existing best/daily records are preserved without fabricating historical entries. A fresh-game action closes the modal and clears background inertness before starting free play.
+
+The independent functional history key stores only KST day, mode and five round scores/total, under current score rules1.6.0. It contains no map/seed/coordinates/input/account/identifier and is never automatically transmitted or included in optional diagnostics exports. Local storage is untrusted: validate five integer scores0–100 and actual calendar dates, recalculate totals, reject incompatible rules, and retain only twenty entries. Completion is idempotent; a storage error leaves gameplay/results available and displays an unsaved-history notice. History-only deletion preserves legacy best/daily/settings/opt-in diagnostics. This personal record feature is separate from the default-off beta analytics consent.
+
+Result navigation remains immediate with a sticky retry action; the final HTML board keeps its static backdrop. Responsive history/progress checks cover320×568 portrait and667×375 landscape, as well as desktop. The modal supports keyboard focus trapping/Escape/background inertness and cross-tab updates.
+
+Validation:106 automated tests, including12new history lifecycle/integrity/retention/isolation/goal/failed-storage cases, type checking/build/exposure audit. Full browser evidence is appended after completion. Earlier actual-device and production API/OAuth/hosting/legal prerequisites remain outstanding. There is no claim that real retention or advertising income has increased. Current public beta has no ads/payments/remote analytics/official API.
+
+App/server1.10.0; rulesVersion1.6.0, physicsVersion1.2.1, fresh-maps-v5, score formula, map10seconds/flight20seconds and normal target concealment are unchanged. No new dependencies, domain/DNS/paid services. Current source remains privately preserved; public site has audited obfuscated compiled assets without source maps.
+
+Full local browser PASSED seven history checks (legacy preservation, genuine completion/previous comparison/bounded goal/new-tab persistence, two final layouts, exclusion/scoped deletion, and two twenty-record modal/start/delete layouts) plus all existing diagnostics/training/feedback/guide/audio/share/controls checks. Observed final board169.0ms and postdrop1.08–1.27s. After visual review, the final portrait layout received compact action spacing and a bounded goal column; final-build public verification below is authoritative for that last CSS refinement.

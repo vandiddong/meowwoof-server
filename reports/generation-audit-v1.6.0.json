@@ -1,0 +1,206 @@
+{
+  "seeds": 1000,
+  "failures": 0,
+  "successRate": 1,
+  "fallbacks": 0,
+  "rejectedAttempts": 2604,
+  "rejectionRate": 0.7225305216426193,
+  "elapsedSeconds": 4.264,
+  "targetPlacement": {
+    "halfExtent": 360,
+    "policy": "equal full-map 4x4 cells clipped to safe bounds",
+    "expectedCentralShare": 0.25,
+    "centralCount": 275,
+    "centralShare": 0.275,
+    "outsideOldCenter": 951,
+    "outsideMiddleFour": 725,
+    "fullMap4x4Grid": [
+      [
+        61,
+        72,
+        59,
+        48
+      ],
+      [
+        64,
+        73,
+        62,
+        67
+      ],
+      [
+        49,
+        68,
+        72,
+        62
+      ],
+      [
+        57,
+        61,
+        55,
+        70
+      ]
+    ],
+    "roundCellCounts": [
+      [
+        20,
+        16,
+        13,
+        12,
+        11,
+        15,
+        10,
+        5,
+        7,
+        17,
+        12,
+        7,
+        9,
+        20,
+        5,
+        21
+      ],
+      [
+        11,
+        15,
+        9,
+        7,
+        12,
+        19,
+        19,
+        16,
+        16,
+        6,
+        15,
+        10,
+        7,
+        11,
+        13,
+        14
+      ],
+      [
+        11,
+        18,
+        7,
+        13,
+        17,
+        9,
+        10,
+        19,
+        9,
+        12,
+        18,
+        15,
+        14,
+        10,
+        9,
+        9
+      ],
+      [
+        11,
+        14,
+        13,
+        9,
+        13,
+        15,
+        10,
+        12,
+        8,
+        14,
+        14,
+        17,
+        14,
+        9,
+        16,
+        11
+      ],
+      [
+        8,
+        9,
+        17,
+        7,
+        11,
+        15,
+        13,
+        15,
+        9,
+        19,
+        13,
+        13,
+        13,
+        11,
+        12,
+        15
+      ]
+    ],
+    "reachability": {
+      "sampledRoundCells": 80,
+      "checks": 1200,
+      "failures": 0,
+      "speeds": [
+        32,
+        49,
+        76
+      ],
+      "withinMeters": 60,
+      "limitSeconds": 20,
+      "slowestApproachSeconds": 12.508,
+      "method": "fixed-tick heading controller, all five starts, retained speed; not a human playtest"
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "count": 200,
+      "min": 25,
+      "max": 34.67,
+      "mean": 29.45,
+      "damagePercent": 0
+    },
+    {
+      "round": 2,
+      "count": 200,
+      "min": 35.09,
+      "max": 45,
+      "mean": 39.66,
+      "damagePercent": 3.88
+    },
+    {
+      "round": 3,
+      "count": 200,
+      "min": 45.03,
+      "max": 54.96,
+      "mean": 49.12,
+      "damagePercent": 13.16
+    },
+    {
+      "round": 4,
+      "count": 200,
+      "min": 55,
+      "max": 64.81,
+      "mean": 59.2,
+      "damagePercent": 17.98
+    },
+    {
+      "round": 5,
+      "count": 200,
+      "min": 65.03,
+      "max": 74.93,
+      "mean": 69.23,
+      "damagePercent": 25
+    }
+  ],
+  "archetypes": {
+    "S자 강": 53,
+    "두 강의 합류": 52,
+    "중앙 산맥": 118,
+    "평행 계곡": 88,
+    "호수 마을": 59,
+    "쌍둥이 마을": 204,
+    "대칭 산맥": 94,
+    "나선 도로": 61,
+    "다중 다리": 40,
+    "숲 평원": 59,
+    "중앙 고원": 123,
+    "해안과 만": 49
+  }
+}

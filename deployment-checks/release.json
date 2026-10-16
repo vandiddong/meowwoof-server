@@ -1,7 +1,7 @@
 {
-  "version": "1.5.0",
-  "sourceCommit": "27dd74e1e10b88559bd670b873ffb0abdadafe9b",
-  "localTests": 61,
+  "version": "1.6.0",
+  "sourceCommit": "0c46c21ebe9ed2c5f2af8f9ad2cfd29391c4c919",
+  "localTests": 62,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -18,7 +18,7 @@
   "googleLogin": "implemented with signature tests; production client ID not configured",
   "realDevicesTested": false,
   "bombPlaybackRate": 4,
-  "competitionVersion": "fresh-maps-v4",
+  "competitionVersion": "fresh-maps-v5",
   "targetHalfExtent": 360,
   "briefingTarget": "bright red outlined target, slow pulse, reduced-motion static",
   "hosting": "GitHub Pages free beta; production API not connected",
@@ -40,5 +40,23 @@
     "#e12d36",
     "#ffd02a",
     "#2268e8"
-  ]
+  ],
+  "targetPlacementPolicy": "equal full-map 4x4 cells clipped to safe bounds; stable across terrain and official difficulty retries",
+  "expectedCentralTargetShare": 0.25,
+  "observedCentralTargetShare": 0.275,
+  "observedOfficialCentralTargetShare": 0.25,
+  "approachAudit": {
+    "sampledRoundCells": 80,
+    "checks": 1200,
+    "failures": 0,
+    "speeds": [
+      32,
+      49,
+      76
+    ],
+    "withinMeters": 60,
+    "limitSeconds": 20,
+    "slowestApproachSeconds": 12.508,
+    "method": "fixed-tick heading controller, all five starts, retained speed; not a human playtest"
+  }
 }

@@ -8,7 +8,7 @@ const base=process.env.BOMB_RUN_TEST_URL||'http://127.0.0.1:4173';
 try {
 const errors=[];const bombDurationsMs=[];const resultFeedbackChecks=[];
 const page=await browser.newPage({viewport:{width:1440,height:1000}});
-await page.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));localStorage.setItem('bomb-run-guide-v1','true');});
+await page.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));localStorage.setItem('bomb-run-guide-v1','true');localStorage.setItem('bomb-run-training-v1',JSON.stringify('skipped'));});
 const installAudioProbe=()=>{
   const NativeAudioContext=window.AudioContext;
   window.__audioTest={contexts:[],oscillatorStarts:0};
@@ -110,7 +110,7 @@ await page.locator('[data-action="rules"]').click();assert.ok((await page.locato
 await page.locator('[data-action="privacy"]').click();assert.ok((await page.locator('.modal').innerText()).includes('브라우저'));await page.locator('[data-action="close"]').click();
 await page.close();
 const mobile=await browser.newPage({viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:1});
-await mobile.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));localStorage.setItem('bomb-run-guide-v1','true');});
+await mobile.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));localStorage.setItem('bomb-run-guide-v1','true');localStorage.setItem('bomb-run-training-v1',JSON.stringify('skipped'));});
 await mobile.addInitScript(installAudioProbe);
 mobile.on('pageerror',e=>errors.push(e.message));
 await mobile.goto(base);
@@ -160,7 +160,7 @@ for(const sample of [
 ]){
   const targetPage=await browser.newPage({viewport:sample.viewport,reducedMotion:sample.os?'reduce':'no-preference'});
   targetPage.on('pageerror',e=>errors.push(e.message));
-  await targetPage.addInitScript(settings=>{localStorage.setItem('bomb-run-settings',JSON.stringify(settings));localStorage.setItem('bomb-run-guide-v1','true');},{quality:'low',reducedMotion:!!sample.motion});
+  await targetPage.addInitScript(settings=>{localStorage.setItem('bomb-run-settings',JSON.stringify(settings));localStorage.setItem('bomb-run-guide-v1','true');localStorage.setItem('bomb-run-training-v1',JSON.stringify('skipped'));},{quality:'low',reducedMotion:!!sample.motion});
   await targetPage.goto(base);await targetPage.locator('[data-action="play"]').click();await targetPage.locator('.target-beacon').waitFor();
   const marker=await targetPage.evaluate(()=>{
     const beacon=document.querySelector('.target-beacon'),canvas=document.getElementById('tactical-map'),paper=document.querySelector('.map-paper').getBoundingClientRect();
@@ -183,7 +183,7 @@ const guideChecks=[];
 for(const sample of [{name:'desktop',viewport:{width:1440,height:1000}},{name:'portrait',viewport:{width:390,height:844},motion:true},{name:'landscape',viewport:{width:667,height:375},os:true}]){
   const guidePage=await browser.newPage({viewport:sample.viewport,reducedMotion:sample.os?'reduce':'no-preference'});
   guidePage.on('pageerror',e=>errors.push(e.message));
-  await guidePage.addInitScript(settings=>{localStorage.setItem('bomb-run-settings',JSON.stringify(settings));localStorage.setItem('bomb-run-best','497');},{quality:'low',reducedMotion:!!sample.motion});
+  await guidePage.addInitScript(settings=>{localStorage.setItem('bomb-run-settings',JSON.stringify(settings));localStorage.setItem('bomb-run-best','497');localStorage.setItem('bomb-run-training-v1',JSON.stringify('skipped'));},{quality:'low',reducedMotion:!!sample.motion});
   await guidePage.goto(base);await guidePage.locator('[data-action="play"]').click();await guidePage.locator('.guide-book').waitFor();
   assert.equal(await guidePage.evaluate(()=>document.getElementById('app').dataset.phase),'menu');
   assert.equal(await guidePage.locator('#tactical-map').count(),0);assert.equal(await guidePage.locator('.guide-progress span').count(),5);
@@ -211,14 +211,45 @@ for(const sample of [{name:'desktop',viewport:{width:1440,height:1000}},{name:'p
 }
 const timeoutPage=await browser.newPage({viewport:{width:390,height:844}});
 timeoutPage.on('pageerror',e=>errors.push(e.message));
-await timeoutPage.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low',reducedMotion:true}));localStorage.setItem('bomb-run-guide-v1','true');});
+await timeoutPage.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low',reducedMotion:true}));localStorage.setItem('bomb-run-guide-v1','true');localStorage.setItem('bomb-run-training-v1',JSON.stringify('skipped'));});
 await timeoutPage.goto(base);await timeoutPage.locator('[data-action="play"]').click();
 await timeoutPage.waitForFunction(()=>document.getElementById('app')?.dataset.phase==='result',{},{timeout:40000});
 assert.equal(await timeoutPage.locator('[data-feedback="no-drop"]').count(),1);assert.equal(await timeoutPage.locator('.impact-landing').count(),0);assert.equal(await timeoutPage.locator('.feedback-axes').count(),0);
 assert.ok((await timeoutPage.locator('.feedback-tip').innerText()).includes('Space 또는 DROP'));assert.equal(await timeoutPage.locator('#score-count').innerText(),'0');
 await timeoutPage.screenshot({path:'screenshots/impact-feedback-no-drop.png'});await timeoutPage.locator('[data-action="next"]').click();await timeoutPage.locator('#tactical-map').waitFor();
 resultFeedbackChecks.push({case:'no-drop and next round',passed:true});await timeoutPage.close();
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,guideChecks,resultFeedbackChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight','five-page guide before first flight','guide previous/next/reopen/escape','guide outside round clock','legacy personal record preserved','release-relative impact diagram and errors','responsive result and immediate next round','honest no-drop feedback'],pageErrors:errors},null,2));
+const trainingChecks=[];
+for(const sample of [{name:'desktop',viewport:{width:1440,height:1000},first:true},{name:'portrait',viewport:{width:390,height:844},touch:true},{name:'landscape',viewport:{width:667,height:375},touch:true}]){
+  const learner=await browser.newPage({viewport:sample.viewport,isMobile:!!sample.touch,hasTouch:!!sample.touch});learner.on('pageerror',e=>errors.push(e.message));
+  await learner.addInitScript(first=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low',trajectory:false}));localStorage.setItem('bomb-run-best-v2','249');if(!first)localStorage.setItem('bomb-run-guide-v1','true');},!!sample.first);
+  await learner.goto(base);await learner.locator('[data-action=play]').click();
+  if(sample.first){await learner.locator('.guide-book').waitFor();await learner.locator('[data-action=guide-finish]').click();}
+  await learner.locator('.training-offer').waitFor();assert.equal(await learner.evaluate(()=>document.getElementById('app').dataset.phase),'menu');assert.equal(await learner.locator('#tactical-map').count(),0);
+  await learner.locator('[data-action=training-start]').click();await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='turn');
+  if(sample.touch){const control=learner.locator('[data-control=left]'),box=await control.boundingBox(),session=await learner.context().newCDPSession(learner);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+box.width/2,y:box.y+box.height/2,id:1}]});await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='slow');await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}
+  else{await learner.keyboard.down('KeyA');await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='slow');await learner.keyboard.up('KeyA');}
+  if(sample.touch){const box=await learner.locator('[data-control=slower]').boundingBox(),session=await learner.context().newCDPSession(learner);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+box.width/2,y:box.y+box.height/2,id:2}]});await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='aim');await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}
+  else{await learner.keyboard.down('KeyS');await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='aim');await learner.keyboard.up('KeyS');}
+  assert.equal(await learner.locator('#training-clock').innerText(),'준비');await learner.waitForTimeout(500);assert.equal(await learner.locator('#training-clock').innerText(),'준비');
+  assert.equal(await learner.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await learner.screenshot({path:`screenshots/training-aim-${sample.name}.png`});
+  await learner.locator('[data-action=training-approach]').click();await learner.locator('#training-distance[data-ready=true]').waitFor({timeout:15000});
+  if(sample.touch)await learner.locator('[data-control=drop]').tap();else await learner.keyboard.press('Space');
+  await learner.locator('.training-result').waitFor({timeout:10000});assert.equal(await learner.locator('.impact-diagram').count(),1);assert.ok(parseFloat(await learner.locator('.result-summary p strong').innerText())<70);
+  assert.equal(await learner.evaluate(()=>localStorage.getItem('bomb-run-best-v2')),'249');assert.equal(await learner.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-training-v1'))),'completed');assert.equal(await learner.locator('.leaderboard').count(),0);await learner.screenshot({path:`screenshots/training-result-${sample.name}.png`});
+  await learner.locator('[data-action=training-retry]').click();await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='aim');assert.equal(await learner.locator('.training-result').count(),0);
+  await learner.locator('[data-action=training-approach]').click();
+  if(sample.first){await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='result',{},{timeout:25000});assert.equal(await learner.locator('[data-feedback=no-drop]').count(),1);}
+  else{if(sample.touch)await learner.locator('[data-control=drop]').tap();else await learner.keyboard.press('Space');await learner.locator('.training-result').waitFor();}
+  await learner.locator('[data-action=training-finish]').click();await learner.locator('#tactical-map').waitFor();
+  assert.equal(await learner.evaluate(()=>document.getElementById('app').hasAttribute('data-training')),false);assert.equal(await learner.locator('.training-coach').count(),0);assert.equal(await learner.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-training-v1'))),'completed');
+  await learner.locator('[data-action=home]').first().click();await learner.locator('[data-action=training]').click();await learner.waitForFunction(()=>document.getElementById('app').dataset.training==='turn');await learner.locator('[data-action=training-skip]').click();await learner.locator('[data-action=play]').waitFor();
+  trainingChecks.push({case:sample.name,passed:true,keyboard:!sample.touch,touch:!!sample.touch});await learner.close();
+}
+const skipper=await browser.newPage({viewport:{width:390,height:844}});skipper.on('pageerror',e=>errors.push(e.message));await skipper.addInitScript(()=>{localStorage.setItem('bomb-run-guide-v1','true');localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));});await skipper.goto(base);
+await skipper.locator('[data-action=practice]').click();await skipper.locator('[data-action=training-skip]').click();await skipper.locator('#tactical-map').waitFor();assert.ok((await skipper.locator('.briefing-info').innerText()).includes('연습 모드'));
+await skipper.locator('[data-action=home]').first().click();await skipper.locator('[data-action=play]').click();await skipper.locator('#tactical-map').waitFor();assert.equal(await skipper.locator('.training-offer:visible').count(),0);
+trainingChecks.push({case:'skip preserves requested mode and does not reoffer',passed:true});await skipper.close();
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,guideChecks,resultFeedbackChecks,trainingChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight','five-page guide before first flight','guide previous/next/reopen/escape','guide outside round clock','legacy personal record preserved','release-relative impact diagram and errors','responsive result and immediate next round','honest no-drop feedback','first-run training offer and skip','keyboard and touch guided steering/braking/drop','unlimited ready step before timed approach','training prediction and actual impact match','training records excluded and retry','training completion resumes normal flight without hints'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

@@ -4,7 +4,7 @@ Play the free web beta: https://vandiddong.github.io/meowwoof-server/?v=1.13.0
 
 A fictional World War I inspired flight game with separate memory-bombing and CPU air-combat modes. Study a partly covered map, remember the target, then find it in flight using terrain. Release results appear quickly. Save a 1080×1920 result card or use native sharing on supported devices; the card contains no target map or seed.
 
-Current public release: **1.13.0**. Free play and personal records are available. Production official rankings and Google login are **not connected**; advertising and payments are **not active**.
+Current public release: **1.13.0**. [Public PC/mobile browser verification passed](https://github.com/vandiddong/meowwoof-server/actions/runs/39046616802). Free play and personal records are available. Production official rankings and Google login are **not connected**; advertising and payments are **not active**.
 
 New in1.13.0: **two independent modes**. Memory bombing ends immediately after five rounds. **회피 · 격추** starts a60-second CPU air battle directly on the existing terrain: steer with mouse/touch, evade telegraphed bursts, use cover and shoot down opponents. Auto fire works only near the reticle and launches real projectiles; a100-round magazine reloads automatically. A visible pause menu works on mobile without Esc. Combat high scores stay separate from bombing/history/official records. This is local CPU combat, not multiplayer.
 

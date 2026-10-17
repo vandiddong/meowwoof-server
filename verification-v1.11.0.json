@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "gameVersion": "1.11.0",
+  "sourceCommit": "7829514260f11317e9012e87bf72dfc26479c0c8",
+  "automatedTests": 113,
+  "dogfightTests": 7,
+  "gameBrowserSuitePassed": true,
+  "extraPageBrowserCases": 8,
+  "pageBrowserSkipped": [
+    {
+      "case": "local-file instructions browser open",
+      "reason": "managed browser blocks file URLs; document links/structure were checked separately from the filesystem"
+    }
+  ],
+  "javascriptErrors": [],
+  "siteManifestEntries": 17,
+  "allSixPublicHttpsFilesByteMatched": true,
+  "localFinalPaintMs": 130.7999999821186,
+  "actualMobileDevicesTested": false,
+  "newHostingConnected": false,
+  "adsConnected": false,
+  "officialDogfightOrMultiplayer": false,
+  "localSuiteNotes": "full game includes keyboard Shift/Space/mouse, touch climb+fire, mobile overlap, score pool/caps/ranking and existing audio/history/training; final gun mounting is separately exercised by the public HTTPS suite"
+}

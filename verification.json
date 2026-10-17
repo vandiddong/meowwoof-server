@@ -1,9 +1,9 @@
 {
   "passed": true,
-  "gameVersion": "1.10.0",
-  "sourceCommit": "2aa4645f2193808822fe71dc76223c2ced7603de",
-  "currentGameSourceUnchanged": true,
-  "gameAssetsIdenticalToExistingRelease": true,
+  "gameVersion": "1.11.0",
+  "sourceCommit": "7829514260f11317e9012e87bf72dfc26479c0c8",
+  "automatedTests": 113,
+  "dogfightTests": 7,
   "gameBrowserSuitePassed": true,
   "extraPageBrowserCases": 8,
   "pageBrowserSkipped": [
@@ -13,11 +13,12 @@
     }
   ],
   "javascriptErrors": [],
-  "zipCrcPassed": true,
   "siteManifestEntries": 17,
-  "localLinksChecked": true,
-  "realHostingChanged": false,
-  "realDevicesTested": false,
-  "actualEdgeHeadersVerified": false,
-  "notes": "root-path static upload; no ads/API/login/payment connected; qualitative positive feedback is not measured retention"
+  "allSixPublicHttpsFilesByteMatched": true,
+  "localFinalPaintMs": 130.7999999821186,
+  "actualMobileDevicesTested": false,
+  "newHostingConnected": false,
+  "adsConnected": false,
+  "officialDogfightOrMultiplayer": false,
+  "localSuiteNotes": "full game includes keyboard Shift/Space/mouse, touch climb+fire, mobile overlap, score pool/caps/ranking and existing audio/history/training; final gun mounting is separately exercised by the public HTTPS suite"
 }

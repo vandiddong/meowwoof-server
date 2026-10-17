@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "gameVersion": "1.10.0",
+  "sourceCommit": "2aa4645f2193808822fe71dc76223c2ced7603de",
+  "currentGameSourceUnchanged": true,
+  "gameAssetsIdenticalToExistingRelease": true,
+  "gameBrowserSuitePassed": true,
+  "extraPageBrowserCases": 8,
+  "pageBrowserSkipped": [
+    {
+      "case": "local-file instructions browser open",
+      "reason": "managed browser blocks file URLs; document links/structure were checked separately from the filesystem"
+    }
+  ],
+  "javascriptErrors": [],
+  "zipCrcPassed": true,
+  "siteManifestEntries": 17,
+  "localLinksChecked": true,
+  "realHostingChanged": false,
+  "realDevicesTested": false,
+  "actualEdgeHeadersVerified": false,
+  "notes": "root-path static upload; no ads/API/login/payment connected; qualitative positive feedback is not measured retention"
+}

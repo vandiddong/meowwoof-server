@@ -1,2 +1,4 @@
-e3fdf584fad9f7af65b25286963ad8ae606ba425d695f371da228c28a1c2db4d  boomkerque-v1.10.0-site.zip
 f87680ba37e3f2023ceff6a3a217d9d787247513135917055f00041f7e2657b7  boomkerque-v1.10.0-launch-kit.zip
+e3fdf584fad9f7af65b25286963ad8ae606ba425d695f371da228c28a1c2db4d  boomkerque-v1.10.0-site.zip
+0603287f53fc271fbbfb42f6de717e46aa8eeee031f024a95518fb4fa664dec5  boomkerque-v1.11.0-launch-kit.zip
+4f94ad75e92e31095d5d7bb83ce4820a9ea5cdb9fc97f3f0589e36cdfc1bf310  boomkerque-v1.11.0-site.zip

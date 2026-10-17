@@ -1,7 +1,7 @@
 {
-  "version": "1.11.0",
-  "sourceCommit": "e5d189a7e7025b6690979ebd76bf69d101f6226e",
-  "localTests": 113,
+  "version": "1.12.0",
+  "sourceCommit": "0530e8e4c62d651a02e29966c0ab8796731bbb5c",
+  "localTests": 117,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -116,7 +116,7 @@
     "deletion": "recent history only; preserve best/daily/settings/diagnostics",
     "rulesVersion": "1.6.0"
   },
-  "dogfightTests": 7,
+  "dogfightTests": 11,
   "dogfight": {
     "mode": "local AI finale after five bombing rounds; not multiplayer",
     "seconds": 20,
@@ -130,16 +130,17 @@
       500
     ],
     "scoreTransfer": "conserves existing point pool",
-    "camera": "fixed chase, centre crosshair",
+    "camera": "FPS-style relative mouse look; aircraft follows yaw/pitch; fixed centre gun reticle",
     "controls": {
+      "mouseMove": "look, turn, climb and descend",
+      "leftMouseHold": "fire and capture pointer",
+      "Esc": "release pointer",
       "W/S": "speed",
-      "A/D": "turn",
-      "Shift": "climb",
-      "Space": "descend",
-      "leftMouseHold": "fire"
+      "A/D": "assisted turn"
     },
-    "mobile": "steer, throttle, climb, descend and hold-fire buttons",
+    "mobile": "drag the screen to aim/steer while holding FIRE; no altitude buttons",
     "rankings": "current-game AI board and shared card include combat; legacy best/history/daily remain bombing-only; official server excludes combat",
-    "earlyFinish": "after player empties 100 rounds and own projectiles resolve"
+    "earlyFinish": "after player empties 100 rounds and own projectiles resolve",
+    "altitudeButtons": false
   }
 }

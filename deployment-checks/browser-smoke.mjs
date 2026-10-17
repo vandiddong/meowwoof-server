@@ -137,6 +137,7 @@ assert.equal(scores.length,5);assert.ok(scores.every(([initial,gained,lost,total
 assert.equal(scores.reduce((n,row)=>n+row[0],0),scores.reduce((n,row)=>n+row[3],0),'Final scores conserve the initial pool');
 assert.deepEqual(await page.locator('.leader-row>b').allTextContents(),scores.map(row=>row[3]).sort((a,b)=>b-a).map(String));
 
+await page.waitForTimeout(700);assert.ok((await audioState()).rms<.0001,'Engine must stop on the final board');
 assert.equal(await page.locator('.leader-row').count(),5);assert.equal(await page.locator('#world').isVisible(),false,'Final HTML board must not wait on a WebGL layer');
 const completedHistory=await page.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-flight-history-v1')).entries);assert.equal(completedHistory.length,2);const actualTotal=completedHistory[1].scores.reduce((sum,n)=>sum+n,0);assert.equal(completedHistory[1].total,actualTotal);const progressGoal=Number((await page.locator('.flight-progress [data-history=goal]').innerText()).replace(/[^0-9]/g,''));assert.ok(progressGoal<=500&&(actualTotal===500?progressGoal===500:progressGoal>actualTotal));const delta=actualTotal-120;assert.ok((await page.locator('[data-history=comparison]').innerText()).includes(delta>0?`+${delta}점`:delta===0?'같은 점수':`이번 ${actualTotal}점`));
 await page.locator('.flight-progress [data-action=history]').click();assert.equal(await page.locator('.history-list li').count(),2);await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>document.activeElement.dataset.action),'history');

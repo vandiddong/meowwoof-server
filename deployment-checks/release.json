@@ -1,7 +1,7 @@
 {
-  "version": "1.12.0",
-  "sourceCommit": "0530e8e4c62d651a02e29966c0ab8796731bbb5c",
-  "localTests": 117,
+  "version": "1.13.0",
+  "sourceCommit": "133514637f7d6d23fea06e609b4ecc7b2a81a9f4",
+  "localTests": 127,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -87,7 +87,8 @@
     "excludedModes": [
       "training",
       "practice",
-      "online"
+      "online",
+      "combat"
     ],
     "data": "date and count/frame aggregates only; no identity/map/input/score",
     "revocation": "remove only stats; discard buffers; honor other-tab withdrawal",
@@ -103,7 +104,8 @@
     "excludedModes": [
       "practice",
       "training",
-      "online"
+      "online",
+      "combat"
     ],
     "fields": [
       "KST day",
@@ -116,31 +118,30 @@
     "deletion": "recent history only; preserve best/daily/settings/diagnostics",
     "rulesVersion": "1.6.0"
   },
-  "dogfightTests": 11,
-  "dogfight": {
-    "mode": "local AI finale after five bombing rounds; not multiplayer",
-    "seconds": 20,
-    "ammo": 100,
-    "shotsPerSecond": 16,
-    "pointsPerHit": 2,
-    "maxEarned": 50,
-    "maxLost": 50,
-    "scoreRange": [
-      0,
-      500
-    ],
-    "scoreTransfer": "conserves existing point pool",
-    "camera": "FPS-style relative mouse look; aircraft follows yaw/pitch; fixed centre gun reticle",
-    "controls": {
-      "mouseMove": "look, turn, climb and descend",
-      "leftMouseHold": "fire and capture pointer",
-      "Esc": "release pointer",
-      "W/S": "speed",
-      "A/D": "assisted turn"
-    },
-    "mobile": "drag the screen to aim/steer while holding FIRE; no altitude buttons",
-    "rankings": "current-game AI board and shared card include combat; legacy best/history/daily remain bombing-only; official server excludes combat",
-    "earlyFinish": "after player empties 100 rounds and own projectiles resolve",
-    "altitudeButtons": false
+  "airBattleTests": 10,
+  "modes": [
+    "memory-bombing",
+    "cpu-air-combat"
+  ],
+  "bombingFinish": "final score immediately after five rounds; no combat score transfer",
+  "airBattle": {
+    "mode": "independent local CPU sortie on the existing generated terrain",
+    "seconds": 60,
+    "cpuCount": 1,
+    "playerHealth": 6,
+    "enemyHealth": 4,
+    "hitPoints": 25,
+    "killPoints": 200,
+    "survivalPointsPerSecond": 5,
+    "magazine": 100,
+    "reloadSeconds": 1.5,
+    "cpuRespawnSeconds": 2,
+    "cpuWarningSeconds": 0.8,
+    "controls": "relative mouse look / touch drag; automatic forward flight; optional auto fire with projectile lead assist; click/FIRE manual fire",
+    "menu": "visible pause/resume/restart/mode selection; P/Escape optional on desktop; no pointer lock by default",
+    "cover": "cached rendered terrain triangles and approximate building/tree footprints block projectiles",
+    "records": "separate local highest score; excluded from bombing history/stats/daily/official/share",
+    "multiplayer": false,
+    "realDevicesTested": false
   }
 }

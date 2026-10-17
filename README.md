@@ -1,20 +1,18 @@
 # 붐케르크 · BOOMKERQUE
 
-Play the free web beta: https://vandiddong.github.io/meowwoof-server/?v=1.12.0
+Play the free web beta: https://vandiddong.github.io/meowwoof-server/?v=1.13.0
 
-A memory and bombing-accuracy game set in a fictional world inspired by World War I aviation. Study a partly covered map, remember the target, then find it in flight using terrain. Release results appear quickly. Save a 1080×1920 result card or use native sharing on supported devices; the card contains no target map or seed.
+A fictional World War I inspired flight game with separate memory-bombing and CPU air-combat modes. Study a partly covered map, remember the target, then find it in flight using terrain. Release results appear quickly. Save a 1080×1920 result card or use native sharing on supported devices; the card contains no target map or seed.
 
-Current public release: **1.12.0**. Free play and personal records are available. Production official rankings and Google login are **not connected**; advertising and payments are **not active**.
+Current public release: **1.13.0**. Free play and personal records are available. Production official rankings and Google login are **not connected**; advertising and payments are **not active**.
 
-New in1.12.0: **mouse-look flight** replaces altitude buttons in the dogfight. Move the mouse to turn/look up or down; the plane follows quickly and stops turning when mouse movement stops. Left mouse holds fire, Esc releases pointer capture, W/S adjusts speed and A/D assists turning. Mobile uses drag aiming with a separate held FIRE button. Bombing Space drop is preserved.
-
-New in1.11.0: a **100-shot AI dogfight finale** follows the five bombing rounds. Fixed chase camera, crosshair, W/S speed and A/D turning, the original altitude-key controls (replaced by mouse look in1.12.0). Each hit moves2 points, with per-plane total gains/losses capped at50. The final local AI board and shared image include combat; personal best/history/local-daily and official server scores remain bombing-only. This is AI combat, not multiplayer.
+New in1.13.0: **two independent modes**. Memory bombing ends immediately after five rounds. **회피 · 격추** starts a60-second CPU air battle directly on the existing terrain: steer with mouse/touch, evade telegraphed bursts, use cover and shoot down opponents. Auto fire works only near the reticle and launches real projectiles; a100-round magazine reloads automatically. A visible pause menu works on mobile without Esc. Combat high scores stay separate from bombing/history/official records. This is local CPU combat, not multiplayer.
 
 New in1.10.0: **나의 비행 기록** retains the latest20 completed free/local-daily games on this browser, compares the previous completion and proposes a bounded next-score goal. Training/practice/official/incomplete games are excluded; history-only deletion preserves legacy bests and diagnostics. Score differences across different maps do not by themselves establish skill improvement.
 
 New in1.9.0: optional **플레이 점검** shows this browser’s recent30-day completion/retry/next-day-play and frame aggregates after explicit consent. It defaults off, has no automatic upload, supports manual file download and statistics-only deletion, and excludes practice/training/official games. This is a manual beta-test aid, not whole-population analytics.
 
-The privately retained competition implementation allows three free five-round attempts per account per Korean calendar day, assigns fresh maps within round-specific difficulty bands, and publishes a 30-minute leaderboard snapshot. It verifies input logs and computes scores on the server. Production API hosting, Google OAuth configuration, privacy retention/deletion details and physical-device validation remain prerequisites. [Release verification and prerequisites](reports/release-v1.12.0.md).
+The privately retained competition implementation allows three free five-round attempts per account per Korean calendar day, assigns fresh maps within round-specific difficulty bands, and publishes a 30-minute leaderboard snapshot. It verifies input logs and computes scores on the server. Production API hosting, Google OAuth configuration, privacy retention/deletion details and physical-device validation remain prerequisites. [Release verification and prerequisites](reports/release-v1.13.0.md).
 
 The original `server.js` remains independent. The game on `gh-pages` contains compiled, obfuscated JavaScript without source maps. Current development source is retained privately in the cloud workspace; earlier source versions remain in public Git history. Browser code can still be inspected or modified. Obfuscation is not encryption or a guarantee against cheating.
 

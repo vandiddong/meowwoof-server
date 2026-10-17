@@ -1,3 +1,4 @@
+import { verifyAirCombat } from './combat-smoke.mjs';
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
@@ -39,7 +40,7 @@ assert.equal(await page.evaluate(()=>localStorage.getItem('bomb-run-play-stats-v
 await page.locator('[data-action=stats]').click();await page.locator('[data-action=stats-enable]').click();assert.equal(await page.locator('[data-stat=starts]').innerText(),'0');await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>document.getElementById('panels').inert),false);
 statsChecks.push({case:'default off and explicit local consent',passed:true});
 await page.locator('[data-action="play"]').click();
-let finalLatencyMs=0,combatIntroLatencyMs=0;
+let finalLatencyMs=0;
 for(let round=1;round<=5;round++){
   console.log(`Desktop round ${round}`);
   await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='briefing');
@@ -88,63 +89,12 @@ await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboa
   assert.ok(bombMs>0&&bombMs<2200,`Post-drop result must arrive within 2.2s, got ${bombMs}ms`);
   if(round===1){assert.ok((await audioState()).starts>=beforeDrop+5,'Cute impact sound must be played');await page.screenshot({path:'screenshots/impact-result.png'});}
   if(round===5){
-    combatIntroLatencyMs=await page.evaluate(async()=>{const start=performance.now();document.querySelector('[data-action="next"]').click();await new Promise(requestAnimationFrame);return performance.now()-start;});
-    assert.ok(combatIntroLatencyMs<500,`Dogfight intro must paint immediately, got ${combatIntroLatencyMs}ms`);
+    finalLatencyMs=await page.evaluate(async()=>{const start=performance.now();document.querySelector('[data-action="next"]').click();await new Promise(requestAnimationFrame);return performance.now()-start;});
+    assert.ok(finalLatencyMs<500,`Bombing final must paint immediately, got ${finalLatencyMs}ms`);
   }else await page.locator('[data-action="next"]').click();
 }
-await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='dogfightIntro');
-assert.ok((await page.locator('.combat-intro').innerText()).includes('마우스 이동'));
-await page.locator('[data-action=dogfight-start]').click();
-await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='dogfight');
-assert.equal(await page.locator('.combat-reticle').count(),1);assert.equal(await page.locator('.drop').isVisible(),false);
-await page.waitForFunction(()=>document.getElementById('heading-label').textContent.startsWith('고도'));
-await page.evaluate(()=>document.exitPointerLock?.());await page.waitForTimeout(50);
-const startAmmo=await page.locator('#ammo-label').innerText(),initialHeight=Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''));
-await page.mouse.move(720,500);await page.mouse.move(800,420);await page.waitForTimeout(450);
-const climbHeight=Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''));assert.ok(climbHeight>initialHeight,'Mouse up must climb');
-await page.mouse.move(800,650);await page.waitForTimeout(500);
-const descendHeight=Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''));assert.ok(descendHeight<climbHeight,'Mouse down must descend');
-await page.mouse.move(800,500);await page.waitForTimeout(350);
-const levelHeight=Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''));
-await page.keyboard.down('Shift');await page.keyboard.down('Space');await page.waitForTimeout(400);await page.keyboard.up('Shift');await page.keyboard.up('Space');
-assert.ok(Math.abs(Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''))-levelHeight)<=1,'Altitude keys must have no combat effect');
-assert.equal(await page.locator('#ammo-label').innerText(),startAmmo,'Mouse movement and former altitude keys must not fire');
-assert.equal(await page.locator('[data-control=climb],[data-control=descend]').count(),0,'Altitude buttons must be removed');
-await page.mouse.down();await page.waitForTimeout(400);await page.mouse.up();
-const releasedAmmo=Number((await page.locator('#ammo-label').innerText()).split('/')[0]);assert.ok(releasedAmmo<100);
-await page.waitForTimeout(250);assert.equal(Number((await page.locator('#ammo-label').innerText()).split('/')[0]),releasedAmmo,'Mouse release stops firing');
-await page.screenshot({path:'screenshots/dogfight-desktop.png'});await page.evaluate(()=>document.exitPointerLock?.());
-for(const sample of [{name:'portrait',viewport:{width:320,height:568}},{name:'landscape',viewport:{width:667,height:375}}]){
-  await page.setViewportSize(sample.viewport);await page.waitForTimeout(150);
-  const controls=await page.locator('[data-control=fire]').evaluateAll(els=>els.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};}));
-  assert.ok(controls.every(r=>r.x>=0&&r.y>=0&&r.x+r.w<=innerWidthFor(sample)&&r.y+r.h<=sample.viewport.height&&r.w>=44&&r.h>=44));
-  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-  const readout=await page.locator('.combat-readout').boundingBox(),instruments=await page.locator('.instruments').boundingBox();
-  assert.ok(readout.x+readout.width<=instruments.x||instruments.x+instruments.width<=readout.x||readout.y+readout.height<=instruments.y||instruments.y+instruments.height<=readout.y,'Ammo and flight instruments must not overlap');
-  if(sample.name==='landscape'){
-    const touchSession=await page.context().newCDPSession(page);await touchSession.send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:5});
-    const look={x:sample.viewport.width*.5,y:sample.viewport.height*.5},fire=await page.locator('[data-control=fire]').boundingBox();
-    const beforeTouchAmmo=Number((await page.locator('#ammo-label').innerText()).split('/')[0]),beforeTouchHeight=Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''));
-    await touchSession.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:look.x,y:look.y,id:51},{x:fire.x+fire.width/2,y:fire.y+fire.height/2,id:52}]});
-    await touchSession.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:look.x+30,y:look.y-50,id:51},{x:fire.x+fire.width/2,y:fire.y+fire.height/2,id:52}]});
-    await page.waitForTimeout(450);await touchSession.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-    assert.ok(Number((await page.locator('#ammo-label').innerText()).split('/')[0])<beforeTouchAmmo);assert.ok(Number((await page.locator('#heading-label').innerText()).replace(/[^0-9]/g,''))>beforeTouchHeight);
-    await touchSession.send('Emulation.setTouchEmulationEnabled',{enabled:false});await touchSession.detach();
-  }
-  await page.screenshot({path:`screenshots/dogfight-${sample.name}.png`});
-}
-function innerWidthFor(sample){return sample.viewport.width;}
-await page.setViewportSize({width:1440,height:1000});
-await page.evaluate(()=>{window.__combatFinalPaintMs=null;const observer=new MutationObserver(()=>{if(document.getElementById('app').dataset.phase==='final'){const start=performance.now();requestAnimationFrame(()=>requestAnimationFrame(()=>window.__combatFinalPaintMs=performance.now()-start));observer.disconnect();}});observer.observe(document.getElementById('app'),{attributes:true,attributeFilter:['data-phase']});});
-await page.mouse.move(720,400);await page.mouse.down();
-await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='final',{},{timeout:20000});await page.mouse.up();
-await page.waitForFunction(()=>window.__combatFinalPaintMs!==null);finalLatencyMs=await page.evaluate(()=>window.__combatFinalPaintMs);assert.ok(finalLatencyMs<500,`Combat result must paint promptly, got ${finalLatencyMs}ms`);
-assert.ok((await page.locator('.combat-summary').innerText()).includes('/ 100발'));
-const ledger=await page.locator('.combat-ledger span:nth-child(even)').allTextContents();const scores=ledger.map(row=>[...row.matchAll(/\d+/g)].map(n=>Number(n[0])));
-assert.equal(scores.length,5);assert.ok(scores.every(([initial,gained,lost,total])=>initial+gained-lost===total&&gained<=50&&lost<=50&&total>=0&&total<=500));
-assert.equal(scores.reduce((n,row)=>n+row[0],0),scores.reduce((n,row)=>n+row[3],0),'Final scores conserve the initial pool');
-assert.deepEqual(await page.locator('.leader-row>b').allTextContents(),scores.map(row=>row[3]).sort((a,b)=>b-a).map(String));
-
+await page.waitForFunction(()=>document.getElementById('app').dataset.phase==='final');
+assert.equal(await page.locator('.combat-summary').count(),0,'Bombing ends without a combat finale');
 assert.equal(await page.evaluate(()=>document.pointerLockElement),null,'Final board releases pointer lock');await page.waitForTimeout(700);assert.ok((await audioState()).rms<.0001,'Engine must stop on the final board');
 assert.equal(await page.locator('.leader-row').count(),5);assert.equal(await page.locator('#world').isVisible(),false,'Final HTML board must not wait on a WebGL layer');
 const completedHistory=await page.evaluate(()=>JSON.parse(localStorage.getItem('bomb-run-flight-history-v1')).entries);assert.equal(completedHistory.length,2);const actualTotal=completedHistory[1].scores.reduce((sum,n)=>sum+n,0);assert.equal(completedHistory[1].total,actualTotal);const progressGoal=Number((await page.locator('.flight-progress [data-history=goal]').innerText()).replace(/[^0-9]/g,''));assert.ok(progressGoal<=500&&(actualTotal===500?progressGoal===500:progressGoal>actualTotal));const delta=actualTotal-120;assert.ok((await page.locator('[data-history=comparison]').innerText()).includes(delta>0?`+${delta}점`:delta===0?'같은 점수':`이번 ${actualTotal}점`));
@@ -325,7 +275,8 @@ for(const sample of [{name:'portrait',viewport:{width:320,height:568}},{name:'la
  const checker=await browser.newPage({viewport:sample.viewport});checker.on('pageerror',e=>errors.push(e.message));await checker.addInitScript(()=>{localStorage.setItem('bomb-run-settings',JSON.stringify({quality:'low'}));localStorage.setItem('bomb-run-best-v2','321');});await checker.goto(base);await checker.locator('[data-action=stats]').click();await checker.locator('[data-action=stats-enable]').click();assert.equal(await checker.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await checker.locator('[data-action=stats-disable]').scrollIntoViewIfNeeded();const box=await checker.locator('[data-action=stats-disable]').boundingBox();assert.ok(box.y>=0&&box.y+box.height<=sample.viewport.height);await checker.screenshot({path:`screenshots/play-stats-${sample.name}.png`});await checker.locator('[data-action=stats-disable]').click();await checker.keyboard.press('Escape');assert.equal(await checker.evaluate(()=>localStorage.getItem('bomb-run-best-v2')),'321');assert.equal(await checker.evaluate(()=>document.getElementById('panels').inert),false);statsChecks.push({case:`${sample.name} consent, scrollable controls, deletion and focus recovery`,passed:true});
 await checker.evaluate(()=>{localStorage.setItem('bomb-run-guide-v1','true');localStorage.setItem('bomb-run-training-v1',JSON.stringify('skipped'));localStorage.setItem('bomb-run-flight-history-v1',JSON.stringify({version:1,rulesVersion:'1.6.0',entries:Array.from({length:20},(_,i)=>({day:'2026-10-16',mode:i%2?'daily':'play',scores:Array(5).fill(i*4),total:i*20}))}));});await checker.reload();await checker.locator('[data-action=history]').click();assert.equal(await checker.locator('.history-list li').count(),20);assert.equal(await checker.locator('.history-bar').count(),5);assert.equal(await checker.locator('.flight-history [data-history=goal]').innerText(),'400점');await checker.locator('[data-action=history-play]').scrollIntoViewIfNeeded();assert.equal(await checker.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await checker.screenshot({path:`screenshots/flight-history-${sample.name}.png`});await checker.locator('[data-action=history-play]').click();await checker.locator('#tactical-map').waitFor();assert.equal(await checker.evaluate(()=>document.getElementById('panels').inert),false);await checker.locator('[data-action=home]').first().click();await checker.locator('[data-action=history]').click();await checker.locator('[data-action=history-clear]').click();assert.equal(await checker.locator('.history-list li').count(),0);assert.equal(await checker.evaluate(()=>localStorage.getItem('bomb-run-best-v2')),'321');await checker.keyboard.press('Escape');historyChecks.push({case:`${sample.name} twenty records, goal, new flight and isolated deletion`,passed:true});await checker.close();
 }
-await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,combatIntroLatencyMs,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,guideChecks,resultFeedbackChecks,trainingChecks,statsChecks,historyChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','100-round AI dogfight','mouse look steers and changes altitude; former altitude keys and buttons removed','left mouse hold/release gatling','mobile drag aiming with simultaneous hold-fire fits portrait/landscape','score transfer caps and conservation','final combat ranking','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight','five-page guide before first flight','guide previous/next/reopen/escape','guide outside round clock','legacy personal record preserved','release-relative impact diagram and errors','responsive result and immediate next round','honest no-drop feedback','first-run training offer and skip','keyboard and touch guided steering/braking/drop','unlimited ready step before timed approach','training prediction and actual impact match','training records excluded and retry','training completion resumes normal flight without hints'],pageErrors:errors},null,2));
+const combatChecks=await verifyAirCombat(browser,base,errors);
+await writeFile('browser-report.json',JSON.stringify({passed:true,url:base,finalLatencyMs,combatChecks,bombDurationsMs,realDevicesTested:false,mapMarkerChecks,guideChecks,resultFeedbackChecks,trainingChecks,statsChecks,historyChecks,checks:['desktop full five-round game','keyboard flight','camera drag','single bomb','fast post-drop results','final AI board','separate menu entry for memory bombing and CPU combat','bombing final immediately after round five','independent CPU combat score and record','mobile drag, automatic fire and visible pause menu','saved settings','friends removed','daily local disclosure','mobile simultaneous steering and braking','retained keyboard and touch airspeed','wind removed','immediate final board','in-flight orientation changes','mobile touch drop','portrait overflow','audible engine signal','release and impact audio','master mute','gesture resumes suspended audio','mobile first-touch audio','no public debug snapshot','Boomkerque branding','1080x1920 share card download','share cancellation','public rules and privacy information','red target alignment and pulse','small landscape briefing fits','app and OS reduced-motion target','target indicator removed in flight','five-page guide before first flight','guide previous/next/reopen/escape','guide outside round clock','legacy personal record preserved','release-relative impact diagram and errors','responsive result and immediate next round','honest no-drop feedback','first-run training offer and skip','keyboard and touch guided steering/braking/drop','unlimited ready step before timed approach','training prediction and actual impact match','training records excluded and retry','training completion resumes normal flight without hints'],pageErrors:errors},null,2));
 assert.deepEqual(errors,[]);
 console.log('PASS browser: complete five rounds, mobile input, settings, local modes, no JS errors');
 } finally {await browser.close();}

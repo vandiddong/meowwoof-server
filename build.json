@@ -1,6 +1,6 @@
 {
   "version": "1.13.0",
-  "sourceCommit": "133514637f7d6d23fea06e609b4ecc7b2a81a9f4",
+  "sourceCommit": "fee26106fde95b54efc32918bdf432489a703cfd",
   "localTests": 127,
   "serverTests": 21,
   "googleSignatureTests": 2,
@@ -68,7 +68,7 @@
   "physicsVersion": "1.2.1",
   "trainingTests": 7,
   "training": "optional first-local-run steering/braking/one-drop lesson; explicit ready action, fixed separate course, real impact prediction, touch/keyboard, skip/retry/reopen, excluded records, normal rendering conceals hints",
-  "resultRendering": "HTML first; one static overview after250ms; final board hides WebGL",
+  "resultRendering": "HTML impact analysis and static background on round/final results; no queued WebGL backdrop; training retains terrain",
   "trainingBrowserLayouts": [
     "1440x1000",
     "390x844",

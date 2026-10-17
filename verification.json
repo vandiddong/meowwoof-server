@@ -1,9 +1,9 @@
 {
   "passed": true,
-  "gameVersion": "1.11.0",
-  "sourceCommit": "e5d189a7e7025b6690979ebd76bf69d101f6226e",
-  "automatedTests": 113,
-  "dogfightTests": 7,
+  "gameVersion": "1.12.0",
+  "sourceCommit": "0530e8e4c62d651a02e29966c0ab8796731bbb5c",
+  "automatedTests": 117,
+  "dogfightTests": 11,
   "gameBrowserSuitePassed": true,
   "extraPageBrowserCases": 8,
   "pageBrowserSkipped": [
@@ -15,14 +15,14 @@
   "javascriptErrors": [],
   "siteManifestEntries": 17,
   "allSixPublicHttpsFilesByteMatched": true,
-  "localFinalPaintMs": 130.7999999821186,
+  "publicObservedPaintMs": 124.89999999999418,
   "publicBrowserSuitePassed": true,
-  "publicFinalPaintMs": 74.80000000001746,
-  "publicVerification": "https://github.com/vandiddong/meowwoof-server/actions/runs/39034653252",
+  "publicFinalPaintMs": 124.89999999999418,
+  "publicVerification": "https://github.com/vandiddong/meowwoof-server/actions/runs/39036541409",
   "shortMenuRegressionPassed": true,
   "actualMobileDevicesTested": false,
   "newHostingConnected": false,
   "adsConnected": false,
   "officialDogfightOrMultiplayer": false,
-  "localSuiteNotes": "full game includes keyboard Shift/Space/mouse, touch climb+fire, mobile overlap, score pool/caps/ranking and existing audio/history/training; final gun mounting, quiet finale audio and short-menu regression pass in the final public HTTPS suite"
+  "controlSuiteNotes": "full game includes mouse yaw/pitch, touch drag+fire and removed altitude keys/buttons, mobile overlap, score pool/caps/ranking and existing audio/history/training; relative mouse look, pointer release, quiet finale audio and short-menu regression pass in the final public HTTPS suite"
 }

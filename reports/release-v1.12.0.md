@@ -7,3 +7,7 @@
 최대20초·100발, 명중당2점 이동, 각 기체의 총 획득/손실 각각50점·0~500 범위·기존 폭격 기록/공식 서버 구분은 유지합니다. 마우스 조종은 빠른 반응과 부드러운 기체 추적을 사용하고, 조준 감도 설정을 따릅니다.
 
 검증:117개 자동 테스트, 타입 검사·Pages 빌드·소스 노출 검사 통과. 실제 컨트롤/시뮬레이션/렌더러로 만든 로컬 테스트에서 마우스 좌우·상하, 회전 정지, 고도 키 제거, 왼쪽 누르기/떼기, 포인터 고정/해제 및 세로/가로 모바일 드래그+동시 발사를 확인했습니다. 최종 공개 전체 게임 검사는 배포 후 실행합니다. 실제Android/iPhone 기기 검증과 공식 API·새 호스팅·광고는 미연결입니다. 원본은 비공개로 보존하며 공개 배포는 난독화 빌드와QA/설명만 포함합니다.
+
+최종 공개HTTPS 전체 검사 통과: https://github.com/vandiddong/meowwoof-server/actions/runs/39036541409 . 마우스 상하 조종·고도 키/버튼 제거·왼쪽 연사·모바일 드래그와 동시 발사·포인터 해제·점수 정산/순위/기록과 기존 오디오/가이드/훈련/통계 검사가 통과했습니다. JS 오류 없음. 공개 결과 표시124.9ms를 관측했고,6개 HTTPS 파일이 최종 빌드와 바이트 단위로 일치합니다. 비공개 bundle을 독립 복원한 빌드의5개 파일도 일치합니다. 실제 기기 검증은 별도입니다.
+
+[사이트 업로드ZIP](https://raw.githubusercontent.com/vandiddong/meowwoof-server/deploy-files/boomkerque-v1.12.0-site.zip) · [안내/정리표 포함 전체묶음](https://raw.githubusercontent.com/vandiddong/meowwoof-server/deploy-files/boomkerque-v1.12.0-launch-kit.zip). 루트(/) 호스팅용이며 기존Pages 하위 경로 빌드와 다릅니다. 새 호스팅·DNS·광고는 연결하지 않았습니다.

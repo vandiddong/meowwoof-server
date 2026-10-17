@@ -1,7 +1,7 @@
 {
-  "version": "1.10.0",
-  "sourceCommit": "2aa4645f2193808822fe71dc76223c2ced7603de",
-  "localTests": 106,
+  "version": "1.11.0",
+  "sourceCommit": "7829514260f11317e9012e87bf72dfc26479c0c8",
+  "localTests": 113,
   "serverTests": 21,
   "googleSignatureTests": 2,
   "seedAudit": {
@@ -115,5 +115,31 @@
     "goal": "next50-point milestone after latest score; capped at500; fallback to legacy best only when history empty",
     "deletion": "recent history only; preserve best/daily/settings/diagnostics",
     "rulesVersion": "1.6.0"
+  },
+  "dogfightTests": 7,
+  "dogfight": {
+    "mode": "local AI finale after five bombing rounds; not multiplayer",
+    "seconds": 20,
+    "ammo": 100,
+    "shotsPerSecond": 16,
+    "pointsPerHit": 2,
+    "maxEarned": 50,
+    "maxLost": 50,
+    "scoreRange": [
+      0,
+      500
+    ],
+    "scoreTransfer": "conserves existing point pool",
+    "camera": "fixed chase, centre crosshair",
+    "controls": {
+      "W/S": "speed",
+      "A/D": "turn",
+      "Shift": "climb",
+      "Space": "descend",
+      "leftMouseHold": "fire"
+    },
+    "mobile": "steer, throttle, climb, descend and hold-fire buttons",
+    "rankings": "current-game AI board and shared card include combat; legacy best/history/daily remain bombing-only; official server excludes combat",
+    "earlyFinish": "after player empties 100 rounds and own projectiles resolve"
   }
 }

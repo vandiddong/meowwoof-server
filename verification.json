@@ -1,7 +1,7 @@
 {
   "passed": true,
   "gameVersion": "1.11.0",
-  "sourceCommit": "7829514260f11317e9012e87bf72dfc26479c0c8",
+  "sourceCommit": "e5d189a7e7025b6690979ebd76bf69d101f6226e",
   "automatedTests": 113,
   "dogfightTests": 7,
   "gameBrowserSuitePassed": true,
@@ -16,9 +16,13 @@
   "siteManifestEntries": 17,
   "allSixPublicHttpsFilesByteMatched": true,
   "localFinalPaintMs": 130.7999999821186,
+  "publicBrowserSuitePassed": true,
+  "publicFinalPaintMs": 74.80000000001746,
+  "publicVerification": "https://github.com/vandiddong/meowwoof-server/actions/runs/39034653252",
+  "shortMenuRegressionPassed": true,
   "actualMobileDevicesTested": false,
   "newHostingConnected": false,
   "adsConnected": false,
   "officialDogfightOrMultiplayer": false,
-  "localSuiteNotes": "full game includes keyboard Shift/Space/mouse, touch climb+fire, mobile overlap, score pool/caps/ranking and existing audio/history/training; final gun mounting is separately exercised by the public HTTPS suite"
+  "localSuiteNotes": "full game includes keyboard Shift/Space/mouse, touch climb+fire, mobile overlap, score pool/caps/ranking and existing audio/history/training; final gun mounting, quiet finale audio and short-menu regression pass in the final public HTTPS suite"
 }

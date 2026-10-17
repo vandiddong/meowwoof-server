@@ -89,7 +89,8 @@ await page.waitForTimeout(1000);await page.keyboard.up('KeyW');await page.keyboa
   assert.ok(bombMs>0&&bombMs<2200,`Post-drop result must arrive within 2.2s, got ${bombMs}ms`);
   if(round===1){assert.ok((await audioState()).starts>=beforeDrop+5,'Cute impact sound must be played');await page.screenshot({path:'screenshots/impact-result.png'});}
   if(round===5){
-    finalLatencyMs=await page.evaluate(async()=>{const start=performance.now();document.querySelector('[data-action="next"]').click();await new Promise(requestAnimationFrame);return performance.now()-start;});
+    const finalTiming=await page.evaluate(async()=>{const start=performance.now();document.querySelector('[data-action="next"]').click();const synchronousMs=performance.now()-start;await new Promise(requestAnimationFrame);return {synchronousMs,paintMs:performance.now()-start};});
+    finalLatencyMs=finalTiming.paintMs;console.log('Bombing final timing',JSON.stringify(finalTiming));
     assert.ok(finalLatencyMs<500,`Bombing final must paint immediately, got ${finalLatencyMs}ms`);
   }else await page.locator('[data-action="next"]').click();
 }
